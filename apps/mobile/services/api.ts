@@ -1,10 +1,21 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import Constants from 'expo-constants';
 
-// Change this to your server URL
-const BASE_URL = __DEV__
-  ? 'http://192.168.1.4:3001/api'
-  : 'https://api.footlaw.app/api';
+// ---- Resolve Local Host Dynamically ----
+// This is the most reliable way to connect to your local dev server from Expo Go
+const getBaseUrl = () => {
+  if (__DEV__) {
+    // Metro hostUri looks like: 192.168.1.4:8081
+    const host = Constants.expoConfig?.hostUri?.split(':')[0] || 'localhost';
+    const url = `http://${host}:3001/api`;
+    console.log('🔗 API Base URL:', url);
+    return url;
+  }
+  return 'https://api.footlaw.app/api';
+};
+
+const BASE_URL = getBaseUrl();
 
 const api = axios.create({
   baseURL: BASE_URL,

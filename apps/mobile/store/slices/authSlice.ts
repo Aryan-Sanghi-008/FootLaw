@@ -31,9 +31,19 @@ const initialState: AuthState = {
 
 export const register = createAsyncThunk(
   'auth/register',
-  async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
+  async (
+    { email, password, firstName, lastName, nationality }: 
+    { email: string; password: string; firstName: string; lastName: string; nationality: string }, 
+    { rejectWithValue }
+  ) => {
     try {
-      const { data } = await api.post('/auth/register', { email, password });
+      const { data } = await api.post('/auth/register', { 
+        email, 
+        password, 
+        firstName, 
+        lastName, 
+        nationality 
+      });
       if (data.success) {
         await SecureStore.setItemAsync('accessToken', data.data.accessToken);
         await SecureStore.setItemAsync('refreshToken', data.data.refreshToken);
@@ -41,7 +51,7 @@ export const register = createAsyncThunk(
       }
       return rejectWithValue(data.error);
     } catch (error: any) {
-      console.error('Registration error:', error.message || error);
+      console.error('Registration error:', error?.message || error);
       return rejectWithValue(error.response?.data?.error || 'Registration failed');
     }
   }
@@ -59,7 +69,7 @@ export const login = createAsyncThunk(
       }
       return rejectWithValue(data.error);
     } catch (error: any) {
-      console.error('Login error:', error.message || error);
+      console.error('Login error:', error?.message || error);
       return rejectWithValue(error.response?.data?.error || 'Login failed');
     }
   }
@@ -77,7 +87,7 @@ export const googleLogin = createAsyncThunk(
       }
       return rejectWithValue(data.error);
     } catch (error: any) {
-      console.error('Google login error:', error.message || error);
+      console.error('Google login error:', error?.message || error);
       return rejectWithValue(error.response?.data?.error || 'Google login failed');
     }
   }
@@ -142,6 +152,7 @@ const authSlice = createSlice({
       state.userId = action.payload.userId;
       state.email = action.payload.email;
       state.profileCompleted = action.payload.profileCompleted;
+      state.profile = action.payload.profile;
     });
     builder.addCase(register.rejected, (state, action) => {
       state.isLoading = false;

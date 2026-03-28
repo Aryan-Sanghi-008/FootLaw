@@ -12,18 +12,26 @@ export default function RegisterScreen() {
   const dispatch = useAppDispatch();
   const { error, isLoading } = useAppSelector((state) => state.auth);
 
+  // ---- Form State ----
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [nationality, setNationality] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleRegister = async () => {
-    if (!email || !password || !confirmPassword) return;
-    if (password !== confirmPassword) {
-      // Handle password mismatch locally or via state
+    if (!email || !password || !firstName || !lastName || !nationality) {
       return;
     }
-    await dispatch(register({ email, password }));
+    
+    await dispatch(register({ 
+      email, 
+      password, 
+      firstName, 
+      lastName, 
+      nationality 
+    }));
   };
 
   return (
@@ -41,6 +49,38 @@ export default function RegisterScreen() {
         </View>
 
         <View style={styles.form}>
+          <View style={styles.row}>
+            <View style={{ flex: 1, marginRight: Spacing.md }}>
+              <Text style={styles.label}>First Name</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Cristiano"
+                placeholderTextColor={Colors.textMuted}
+                value={firstName}
+                onChangeText={setFirstName}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.label}>Last Name</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Ronaldo"
+                placeholderTextColor={Colors.textMuted}
+                value={lastName}
+                onChangeText={setLastName}
+              />
+            </View>
+          </View>
+
+          <Text style={styles.label}>Nationality</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="e.g. Portuguese"
+            placeholderTextColor={Colors.textMuted}
+            value={nationality}
+            onChangeText={setNationality}
+          />
+
           <Text style={styles.label}>Email Address</Text>
           <TextInput
             style={styles.input}
@@ -62,17 +102,17 @@ export default function RegisterScreen() {
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
             />
+            <TouchableOpacity 
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.eyeIcon}
+            >
+              <Ionicons 
+                name={showPassword ? 'eye-off' : 'eye'} 
+                size={20} 
+                color={Colors.textSecondary} 
+              />
+            </TouchableOpacity>
           </View>
-
-          <Text style={styles.label}>Confirm Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Repeat your password"
-            placeholderTextColor={Colors.textMuted}
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry={!showPassword}
-          />
 
           {error && <Text style={styles.errorText}>{error}</Text>}
 
@@ -106,14 +146,14 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: Spacing.xl,
-    justifyContent: 'center',
+    paddingTop: 60,
   },
   header: {
-    marginBottom: Spacing['4xl'],
+    marginBottom: Spacing.xl,
     backgroundColor: 'transparent',
   },
   backButton: {
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
   },
   title: {
     fontSize: FontSize['3xl'],
@@ -126,6 +166,10 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xs,
   },
   form: {
+    backgroundColor: 'transparent',
+  },
+  row: {
+    flexDirection: 'row',
     backgroundColor: 'transparent',
   },
   label: {
@@ -153,6 +197,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.surfaceBorder,
     marginBottom: Spacing.lg,
+  },
+  eyeIcon: {
+    padding: Spacing.md,
   },
   registerButton: {
     height: 50,

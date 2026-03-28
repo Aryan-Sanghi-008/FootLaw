@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
-import { User } from '../models';
+import { User, Profile } from '../models'; // Import Profile
 import { config } from '../config';
 import { authMiddleware, type AuthRequest } from '../middleware/auth';
 
@@ -26,10 +26,10 @@ function generateTokens(userId: string) {
 
 router.post('/register', async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, firstName, lastName, nationality } = req.body;
 
-    if (!email || !password) {
-      res.status(400).json({ success: false, error: 'Email and password are required' });
+    if (!email || !password || !firstName || !lastName || !nationality) {
+      res.status(400).json({ success: false, error: 'All fields are required' });
       return;
     }
 
@@ -47,9 +47,19 @@ router.post('/register', async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Create User
     const user = await User.create({
       email: email.toLowerCase(),
       password: hashedPassword,
+      profileCompleted: true, // Mark as completed since we're collecting fields now
+    });
+
+    // Create Profile
+    const profile = await Profile.create({
+      userId: user._id,
+      firstName,
+      lastName,
+      nationality,
     });
 
     const tokens = generateTokens(user._id.toString());
@@ -60,6 +70,7 @@ router.post('/register', async (req: Request, res: Response) => {
         userId: user._id,
         email: user.email,
         profileCompleted: user.profileCompleted,
+        profile,
         ...tokens,
       },
     });

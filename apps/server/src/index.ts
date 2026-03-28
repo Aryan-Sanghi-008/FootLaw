@@ -41,7 +41,7 @@ async function main() {
   await connectDB();
 
   // ---- Start server ----
-  httpServer.listen(config.port, () => {
+  httpServer.listen(config.port, '0.0.0.0', () => {
     console.log(`\n🚀 Footlaw Server running on port ${config.port}`);
     console.log(`   Health: http://localhost:${config.port}/api/health`);
     console.log(`   Environment: ${process.env.NODE_ENV || 'development'}\n`);
