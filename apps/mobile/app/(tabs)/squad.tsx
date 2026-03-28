@@ -13,7 +13,7 @@ import { fetchSquad } from '../../store/slices/squadSlice';
 import { Text } from '../../components/Themed';
 import { Colors } from '../../theme/tokens';
 import { IPlayer, Position, Morale } from '@footlaw/shared';
-import Pitch3D from '../../components/3d/Pitch3D';
+import Pitch2D from '../../components/Pitch2D';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -227,7 +227,7 @@ export default function SquadScreen() {
                className="absolute inset-0"
             />
             {/* The actual 3D engine rendered above the gradient background */}
-            <Pitch3D players={pitchPlayers} />
+            <Pitch2D players={pitchPlayers} />
             
             <View className="absolute top-lg left-lg flex-row items-center gap-2 bg-black/80 px-md py-2 rounded-full border border-white/10">
                <View className="w-2 h-2 bg-primary rounded-full" />

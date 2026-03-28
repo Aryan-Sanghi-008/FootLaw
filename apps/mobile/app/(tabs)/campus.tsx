@@ -7,10 +7,9 @@ import {
   Image,
   Dimensions
 } from 'react-native';
-import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '../../theme/tokens';
+import { Colors } from '../../theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppSelector, useAppDispatch } from '../../store';
 import { formatCurrency } from '../../utils/helpers';
@@ -47,7 +46,7 @@ function FacilityCard({ facility, type }: { facility: any; type: string }) {
     <View className="mb-md">
        <TouchableOpacity 
          activeOpacity={0.9}
-         className="bg-surfaceContainerHigh rounded-[24px] p-lg flex-row items-center border border-white/5"
+         className="bg-surfaceContainerHigh rounded-[28px] p-lg flex-row items-center border border-white/5 shadow-lg"
          onPress={() => dispatch(upgradeFacility(type))}
        >
           <View 
@@ -97,7 +96,7 @@ export default function CampusScreen() {
     <View className="flex-1 bg-background">
       <SafeAreaView className="flex-1" edges={['top']}>
         {/* Top App Bar */}
-        <BlurView intensity={30} tint="dark" className="flex-row items-center justify-between px-xl py-md">
+        <View className="flex-row items-center justify-between px-xl py-md bg-surfaceContainerHighest/30 backdrop-blur-md">
           <View className="flex-row items-center gap-md">
             <View className="w-10 h-10 rounded-full border-2 border-primary overflow-hidden">
               <Image source={{ uri: AVATAR }} className="w-full h-full" />
@@ -109,11 +108,11 @@ export default function CampusScreen() {
                <Text className="font-headingBold text-xs text-primary tracking-[2px]">{tokens} <Ionicons name="diamond" size={10}/> • {balance}</Text>
             </View>
           </View>
-        </BlurView>
+        </View>
 
         <ScrollView contentContainerStyle={{ padding: 20 }} showsVerticalScrollIndicator={false}>
           {/* Isometric World View */}
-          <View className="w-full aspect-square bg-surfaceContainerLowest rounded-[32px] overflow-hidden border border-white/5 mb-xl relative">
+          <View className="w-full aspect-square bg-surfaceContainerLowest rounded-[28px] overflow-hidden border border-white/5 mb-xl relative">
              <Image source={{ uri: MAP_IMG }} className="absolute inset-0 opacity-40" resizeMode="cover" />
              <LinearGradient
                colors={['transparent', Colors.background]}
@@ -149,17 +148,17 @@ export default function CampusScreen() {
              </View>
 
              <View className="absolute inset-x-xl bottom-xl">
-                <BlurView intensity={80} tint="dark" className="p-lg rounded-2xl border border-white/10 overflow-hidden">
-                   <View className="flex-row justify-between items-center">
-                      <View>
-                         <Text className="font-bold text-[10px] text-onSurfaceVariant tracking-widest mb-1 uppercase">MASTER CAMPUS VALUE</Text>
-                         <Text className="font-headingBlack text-2xl text-white tracking-tighter">$142,500,000</Text>
-                      </View>
-                      <View className="bg-primary/20 p-2 rounded-xl">
-                         <Ionicons name="stats-chart" size={24} color={Colors.primary} />
-                      </View>
-                   </View>
-                </BlurView>
+                 <View className="p-lg rounded-2xl border border-white/10 overflow-hidden bg-black/80">
+                    <View className="flex-row justify-between items-center">
+                       <View>
+                          <Text className="font-bold text-[10px] text-onSurfaceVariant tracking-widest mb-1 uppercase">MASTER CAMPUS VALUE</Text>
+                          <Text className="font-headingBlack text-2xl text-white tracking-tighter">$142,500,000</Text>
+                       </View>
+                       <View className="bg-primary/20 p-2 rounded-xl">
+                          <Ionicons name="stats-chart" size={24} color={Colors.primary} />
+                       </View>
+                    </View>
+                 </View>
              </View>
           </View>
 

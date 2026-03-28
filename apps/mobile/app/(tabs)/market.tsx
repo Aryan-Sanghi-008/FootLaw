@@ -29,7 +29,7 @@ function ScoutCard({ item }: { item: any }) {
   const stars = item.starRating / 2; // Assuming 1-10 rating to 1-5 stars
 
   return (
-    <View className="w-[280px] bg-slate-800/40 rounded-[24px] overflow-hidden border border-white/5 mr-lg">
+    <View className="w-[280px] bg-surfaceContainerHigh rounded-[28px] overflow-hidden border border-white/5 mr-lg shadow-xl">
       <View className="absolute top-md right-md z-10 flex-row bg-black/50 px-2 py-1 rounded-md border border-white/10">
         {Array.from({ length: 5 }).map((_, i) => (
           <Ionicons 
@@ -107,7 +107,7 @@ function AuctionRow({ item, currentClubId }: { item: any; currentClubId?: string
   const player = item.playerId;
 
   return (
-    <View className={`rounded-[24px] p-lg border-l-4 border-primary gap-lg mb-md ${isHot ? 'bg-surfaceContainerHigh border border-primary' : 'bg-surfaceContainerLow'}`}>
+    <View className={`rounded-[28px] p-lg border-l-4 border-primary gap-lg mb-md shadow-lg ${isHot ? 'bg-surfaceContainerHigh border border-primary' : 'bg-surfaceContainerLow'}`}>
       {isHot && (
         <View className="absolute inset-0 bg-primary/5 -z-10" />
       )}
@@ -184,7 +184,7 @@ export default function TransferMarketScreen() {
     <View className="flex-1 bg-background">
       <SafeAreaView className="flex-1" edges={['top']}>
         {/* Top App Bar */}
-        <BlurView intensity={30} tint="dark" className="flex-row items-center justify-between px-xl py-md">
+        <View className="flex-row items-center justify-between px-xl py-md bg-surfaceContainerHighest/30 backdrop-blur-md">
           <View className="flex-row items-center gap-md">
             <View className="w-10 h-10 rounded-full border-2 border-primary overflow-hidden">
               <Image source={{ uri: AVATAR }} className="w-full h-full" />
@@ -196,7 +196,7 @@ export default function TransferMarketScreen() {
                <Text className="font-headingBold text-xs text-primary tracking-[2px]">{tokens} <Ionicons name="diamond" size={10}/> • {balance}</Text>
             </View>
           </View>
-        </BlurView>
+        </View>
 
         <ScrollView contentContainerStyle={{ padding: 20 }} showsVerticalScrollIndicator={false}>
           {/* Header Section */}

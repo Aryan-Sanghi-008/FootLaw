@@ -100,8 +100,11 @@ export default function DashboardScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Main Focus: Next Match */}
-          <BlurView intensity={20} tint="dark" className="rounded-[24px] p-xl overflow-hidden border border-primary/10 mb-xl">
-            <View className="absolute -top-[50px] -right-[50px] w-[200px] h-[200px] bg-primary/10 rounded-full" />
+          <View className="bg-surfaceContainerHigh rounded-[28px] p-lg overflow-hidden border border-white/5 mb-xl">
+            <LinearGradient
+               colors={['rgba(42, 229, 0, 0.1)', 'transparent']}
+               className="absolute inset-0"
+            />
             
             <View className="flex-row justify-between items-start mb-xl z-10">
               <View className="bg-primary/20 flex-row items-center px-lg py-1.5 rounded-full gap-2">
@@ -166,7 +169,7 @@ export default function DashboardScreen() {
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
-          </BlurView>
+          </View>
 
           {/* Quick Links */}
           <View className="gap-md mb-xl">
@@ -218,7 +221,7 @@ export default function DashboardScreen() {
           </View>
 
           {/* Player Spotlight */}
-          <View className="h-[250px] bg-surfaceContainerHigh rounded-[24px] overflow-hidden">
+          <View className="h-[280px] bg-surfaceContainerHigh rounded-[28px] border border-white/5 overflow-hidden">
              <Image source={{ uri: PLAYER_SPOTLIGHT }} className="absolute inset-0" resizeMode="cover" />
              <LinearGradient
                colors={['transparent', Colors.surfaceContainerHighest]}

@@ -1,7 +1,6 @@
 import React from 'react';
 import { 
   View, 
-  ImageBackground, 
   TouchableOpacity,
   Image,
   Text as RNText,
@@ -12,10 +11,9 @@ import { useAppDispatch, useAppSelector } from '../../store';
 import { fetchNextMatch } from '../../store/slices/matchSlice';
 import { fetchMyClub } from '../../store/slices/clubSlice';
 import { Text } from '../../components/Themed';
-import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '../../theme/tokens';
+import { Colors } from '../../theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { formatCurrency } from '../../utils/helpers';
 
@@ -41,13 +39,13 @@ export default function MatchCampaignScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      {/* Background Map */}
+      {/* Background Effect */}
       <View className="absolute inset-0 z-0 justify-center items-center">
-         <ImageBackground 
-            source={{ uri: 'https://placeholder.pics/svg/300' }} 
-            className="absolute inset-0 opacity-10" 
-            resizeMode="cover"
+         <LinearGradient
+            colors={[Colors.surfaceContainerLow, Colors.background]}
+            className="absolute inset-0"
          />
+         <View className="absolute inset-0 opacity-10 bg-primary/5" />
       </View>
 
       {/* Map Markers */}
@@ -70,18 +68,9 @@ export default function MatchCampaignScreen() {
         </View>
       </View>
 
-      <View className="absolute items-center z-10 opacity-40" style={{ top: '60%', left: '80%' }}>
-        <View className="w-8 h-8 rounded-full bg-surfaceContainerHighest border-2 border-outline items-center justify-center">
-           <Ionicons name="lock-closed" size={16} color={Colors.outline} />
-        </View>
-        <View className="bg-surfaceContainer px-2 py-0.5 rounded mt-2">
-           <Text className="font-bold text-[10px] text-outline uppercase">Tokyo Neon</Text>
-        </View>
-      </View>
-
       <SafeAreaView className="flex-1 z-10" edges={['top']}>
         {/* Top App Bar */}
-        <BlurView intensity={30} tint="dark" className="flex-row items-center justify-between px-xl py-md">
+        <View className="flex-row items-center justify-between px-xl py-md bg-surfaceContainerHighest/30 backdrop-blur-md">
           <View className="flex-row items-center gap-md">
             <View className="w-10 h-10 rounded-full border-2 border-primary overflow-hidden">
               <Image source={{ uri: AVATAR }} className="w-full h-full" />
@@ -91,11 +80,15 @@ export default function MatchCampaignScreen() {
           <View className="bg-surfaceContainerLow px-md py-sm rounded-full border border-white/5">
              <Text className="font-bold text-xs text-onSurfaceVariant">{tokens} <Ionicons name="diamond" size={10}/> • {balance}</Text>
           </View>
-        </BlurView>
+        </View>
 
         {/* Objective Card Overlay */}
         <View className="flex-1 justify-center px-xl">
-           <BlurView intensity={20} tint="dark" className="rounded-[24px] p-xl border border-white/5 overflow-hidden">
+           <View className="bg-surfaceContainerHigh rounded-[28px] p-lg border border-white/5 overflow-hidden">
+              <LinearGradient
+                 colors={['rgba(0, 227, 253, 0.05)', 'transparent']}
+                 className="absolute inset-0"
+              />
               <View className="flex-row justify-between items-start mb-xl">
                  <View>
                     <Text className="font-bold text-[10px] text-secondaryContainer tracking-[2px] mb-1">CURRENT STAGE</Text>
@@ -140,9 +133,6 @@ export default function MatchCampaignScreen() {
                        <Ionicons name="ticket" size={16} color={Colors.tertiary} />
                        <Text className="font-bold text-sm text-tertiary">15 T</Text>
                     </View>
-                    <View className="flex-row items-center bg-surfaceContainerHighest border border-white/10 px-md py-sm rounded-md gap-1.5">
-                       <Text className="font-bold text-sm text-secondaryContainer">XP</Text>
-                    </View>
                  </View>
               </View>
 
@@ -163,14 +153,13 @@ export default function MatchCampaignScreen() {
                     </Text>
                  </LinearGradient>
               </TouchableOpacity>
-           </BlurView>
+           </View>
         </View>
-
       </SafeAreaView>
 
       {/* Season Pass Progress Track */}
-      <View className={`absolute left-0 right-0 px-xl z-20 ${Platform.OS === 'ios' ? 'bottom-[110px]' : 'bottom-[80px]'}`}>
-         <BlurView intensity={50} tint="dark" className="p-lg rounded-[24px] border border-white/5 overflow-hidden">
+      <View className={`absolute left-0 right-0 px-xl z-20 ${Platform.OS === 'ios' ? 'bottom-[120px]' : 'bottom-[90px]'}`}>
+         <View className="bg-surfaceContainerHigh p-lg rounded-[28px] border border-white/10 overflow-hidden shadow-2xl">
             <View className="flex-row justify-between items-center mb-lg">
                <Text className="font-headingBlack text-[10px] text-primary tracking-[2px] uppercase">SEASON PASS PROGRESS</Text>
                <View className="bg-surfaceContainerHighest px-md py-1 rounded-full">
@@ -192,18 +181,13 @@ export default function MatchCampaignScreen() {
                   <View className="w-9 h-9 rounded-xl bg-surfaceContainerHigh border-2 border-white/10 justify-center items-center opacity-60">
                      <Ionicons name="gift" size={16} color={Colors.white} />
                   </View>
-                  <View className="w-9 h-9 rounded-xl bg-surfaceContainerHigh border-2 border-white/10 justify-center items-center opacity-60">
-                     <Ionicons name="diamond" size={16} color={Colors.white} />
-                  </View>
                   <View className="w-12 h-12 rounded-2xl bg-secondaryContainer border-4 border-surface justify-center items-center">
                      <Ionicons name="ribbon" size={24} color={Colors.onSecondaryContainer} />
                   </View>
                </View>
             </View>
-         </BlurView>
+         </View>
       </View>
     </View>
   );
 }
-
-const styles = {};
