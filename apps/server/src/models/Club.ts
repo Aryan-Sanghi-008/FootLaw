@@ -59,7 +59,7 @@ const ClubSchema = new Schema<IClubDocument>(
   { timestamps: true }
 );
 
-ClubSchema.index({ profileId: 1 });
+
 ClubSchema.index({ leagueId: 1 });
 ClubSchema.index({ tier: 1 });
 

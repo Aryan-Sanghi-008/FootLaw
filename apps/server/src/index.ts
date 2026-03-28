@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
+import Redis from 'ioredis';
 import { config } from './config';
 import { connectDB } from './config/database';
 import { setupSocketIO } from './sockets';
@@ -27,6 +28,11 @@ async function main() {
   app.use('/api/auth', authRoutes);
   app.use('/api/clubs', clubRoutes);
   app.use('/api/players', playerRoutes);
+
+  // ---- Redis connection check ----
+  const redis = new Redis(config.redisUrl);
+  redis.on('connect', () => console.log('✅ Redis connected successfully'));
+  redis.on('error', (err) => console.error('❌ Redis connection error:', err.message));
 
   // ---- Socket.IO ----
   setupSocketIO(httpServer);

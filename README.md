@@ -1,159 +1,103 @@
-# Turborepo starter
+# ⚽ Footlaw: Football Management Simulation
 
-This Turborepo starter is maintained by the Turborepo core team.
+Footlaw is a persistent, real-time football management simulation game for Android and iOS. Build your club from the ground up, scout world-class talent, and dominate the league.
 
-## Using this example
+## 🏗️ Project Structure
 
-Run the following command:
+This is a **Turborepo** monorepo:
 
-```sh
-npx create-turbo@latest
+- `apps/mobile`: React Native (Expo) - The mobile game client.
+- `apps/server`: Node.js (Express) - Backend API and real-time Socket.IO server.
+- `packages/shared`: Shared TypeScript types, constants, and game logic utilities.
+
+## 🧪 Tech Stack
+
+- **Frontend**: React Native, Expo Router, Redux Toolkit, Socket.IO Client.
+- **Backend**: Node.js, Express, MongoDB (Mongoose), Socket.IO.
+- **Shared**: TypeScript (Strict mode).
+- **Database**: MongoDB (Persistence), Redis (Caching/Sessions).
+
+---
+
+## 🚀 Getting Started
+
+### 1. Prerequisites
+
+Ensure you have the following installed (via Homebrew on macOS):
+
+```bash
+brew install colima docker docker-compose docker-buildx
 ```
 
-## What's inside?
+### 2. Infrastructure Setup (Colima & Docker Compose)
 
-This Turborepo includes the following packages/apps:
+To start the local MongoDB and Redis services using **Colima**:
 
-### Apps and Packages
+1.  **Start Colima** (if not already running):
+    ```bash
+    colima start --cpu 2 --memory 4
+    ```
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+2.  **Launch Infrastructure**:
+    Use Docker Compose to start MongoDB and Redis with persistent volumes:
+    ```bash
+    docker-compose up -d
+    ```
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+3.  **Verify Services**:
+    ```bash
+    docker ps
+    ```
+    You should see both `footlaw-mongodb` and `footlaw-redis` containers running.
 
-### Utilities
+### 3. Installation
 
-This Turborepo has some additional tools already setup for you:
+From the root directory, install all dependencies for the entire monorepo:
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+npm install
 ```
 
-Without global `turbo`, use your package manager:
+### 4. Environment Variables
 
-```sh
-cd my-turborepo
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+The server requires environment variables. A default `.env` is provided in `apps/server/.env`. Ensure the values match your local setup.
+
+---
+
+## 🏃 Running the Application
+
+### Everything at once (Recommended)
+
+Run both the server and the mobile app in development mode using Turbo:
+
+```bash
+npm run dev
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+### Running individual apps
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+- **Server only**: `npm run dev --filter=@footlaw/server`
+- **Mobile only**: `npm run dev --filter=@footlaw/mobile`
 
-```sh
-turbo build --filter=docs
-```
+### Mobile Development Details
 
-Without global `turbo`:
+When running the mobile app:
+- Press `i` to open the **iOS Simulator**.
+- Press `a` to open the **Android Emulator**.
+- Scan the **QR Code** with the **Expo Go** app (available on App Store/Play Store) to run on your physical device.
 
-```sh
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+---
 
-### Develop
+## 🛠️ Development Tasks
 
-To develop all apps and packages, run the following command:
+- **Check Types**: `npm run check-types`
+- **Build All**: `npm run build`
+- **Format Code**: `npm run format`
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+## 🛤️ Roadmap
 
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+- [x] Phase 1: Foundation, Onboarding, and Squad Genesis.
+- [ ] Phase 2: Match Engine (2D Pitch, Real-time Simulation).
+- [ ] Phase 3: League System & Season Progression.
+- [ ] Phase 4: Transfer Market & Auction House.
+- [ ] Phase 5: Campus & Facilities.

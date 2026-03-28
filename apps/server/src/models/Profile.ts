@@ -26,6 +26,4 @@ const ProfileSchema = new Schema<IProfileDocument>(
   { timestamps: true }
 );
 
-ProfileSchema.index({ userId: 1 });
-
 export const Profile = mongoose.model<IProfileDocument>('Profile', ProfileSchema);

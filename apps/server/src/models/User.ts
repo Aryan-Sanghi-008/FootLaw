@@ -17,6 +17,4 @@ const UserSchema = new Schema<IUserDocument>(
   { timestamps: true }
 );
 
-UserSchema.index({ email: 1 });
-
 export const User = mongoose.model<IUserDocument>('User', UserSchema);
