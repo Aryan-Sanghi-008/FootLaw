@@ -1,9 +1,12 @@
 import { Router, type Request, type Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 import { User } from '../models';
 import { config } from '../config';
 import { authMiddleware, type AuthRequest } from '../middleware/auth';
+
+const googleClient = new OAuth2Client(config.googleClientId);
 
 const router = Router();
 
@@ -103,6 +106,57 @@ router.post('/login', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
+// ---- POST /api/auth/google ----
+
+router.post('/google', async (req: Request, res: Response) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      res.status(400).json({ success: false, error: 'Google ID token required' });
+      return;
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: config.googleClientId,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      res.status(400).json({ success: false, error: 'Invalid Google token' });
+      return;
+    }
+
+    const email = payload.email.toLowerCase();
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Create a new user for Google login (password-less)
+      user = await User.create({
+        email,
+        password: Math.random().toString(36).slice(-10), // Random placeholder
+        profileCompleted: false,
+      });
+    }
+
+    const tokens = generateTokens(user._id.toString());
+
+    res.json({
+      success: true,
+      data: {
+        userId: user._id,
+        email: user.email,
+        profileCompleted: user.profileCompleted,
+        ...tokens,
+      },
+    });
+  } catch (error) {
+    console.error('Google auth error:', error);
+    res.status(401).json({ success: false, error: 'Google authentication failed' });
   }
 });
 

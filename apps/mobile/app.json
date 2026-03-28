@@ -21,7 +21,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0a0e1a"
       },
-      "package": "app.footlaw.mobile"
+      "package": "app.footlaw.mobile",
+      "usesCleartextTraffic": true
     },
     "web": {
       "bundler": "metro",

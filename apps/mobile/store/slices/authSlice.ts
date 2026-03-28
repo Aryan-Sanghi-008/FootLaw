@@ -41,6 +41,7 @@ export const register = createAsyncThunk(
       }
       return rejectWithValue(data.error);
     } catch (error: any) {
+      console.error('Registration error:', error.message || error);
       return rejectWithValue(error.response?.data?.error || 'Registration failed');
     }
   }
@@ -58,7 +59,26 @@ export const login = createAsyncThunk(
       }
       return rejectWithValue(data.error);
     } catch (error: any) {
+      console.error('Login error:', error.message || error);
       return rejectWithValue(error.response?.data?.error || 'Login failed');
+    }
+  }
+);
+
+export const googleLogin = createAsyncThunk(
+  'auth/googleLogin',
+  async (idToken: string, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post('/auth/google', { idToken });
+      if (data.success) {
+        await SecureStore.setItemAsync('accessToken', data.data.accessToken);
+        await SecureStore.setItemAsync('refreshToken', data.data.refreshToken);
+        return data.data;
+      }
+      return rejectWithValue(data.error);
+    } catch (error: any) {
+      console.error('Google login error:', error.message || error);
+      return rejectWithValue(error.response?.data?.error || 'Google login failed');
     }
   }
 );
@@ -141,6 +161,23 @@ const authSlice = createSlice({
       state.profileCompleted = action.payload.profileCompleted;
     });
     builder.addCase(login.rejected, (state, action) => {
+      state.isLoading = false;
+      state.error = action.payload as string;
+    });
+
+    // Google Login
+    builder.addCase(googleLogin.pending, (state) => {
+      state.isLoading = true;
+      state.error = null;
+    });
+    builder.addCase(googleLogin.fulfilled, (state, action) => {
+      state.isLoading = false;
+      state.isAuthenticated = true;
+      state.userId = action.payload.userId;
+      state.email = action.payload.email;
+      state.profileCompleted = action.payload.profileCompleted;
+    });
+    builder.addCase(googleLogin.rejected, (state, action) => {
       state.isLoading = false;
       state.error = action.payload as string;
     });

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Provider } from 'react-redux';
 import { store, useAppDispatch, useAppSelector } from '../store';
@@ -9,11 +9,31 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 
 function RootLayoutInner() {
   const dispatch = useAppDispatch();
-  const { isLoading } = useAppSelector((state) => state.auth);
+  const segments = useSegments();
+  const router = useRouter();
+  const { isLoading, isAuthenticated, profileCompleted } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    const inAuthGroup = segments[0] === '(auth)';
+
+    if (!isAuthenticated && !inAuthGroup) {
+      // Redirect to the sign-in page.
+      router.replace('/(auth)/login');
+    } else if (isAuthenticated && inAuthGroup) {
+      // Redirect to the home page.
+      if (!profileCompleted) {
+        router.replace('/(onboarding)/tutorial');
+      } else {
+        router.replace('/(tabs)/home');
+      }
+    }
+  }, [isAuthenticated, profileCompleted, segments, isLoading, router]);
 
   if (isLoading) {
     return (

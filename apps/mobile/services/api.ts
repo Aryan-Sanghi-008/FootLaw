@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 
 // Change this to your server URL
 const BASE_URL = __DEV__
-  ? 'http://localhost:3001/api'
+  ? 'http://192.168.1.4:3001/api'
   : 'https://api.footlaw.app/api';
 
 const api = axios.create({
