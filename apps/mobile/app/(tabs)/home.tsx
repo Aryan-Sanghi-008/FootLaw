@@ -8,16 +8,17 @@ import {
   Image,
   Text as RNText 
 } from 'react-native';
-import { useAppDispatch, useAppSelector } from '@/store';
-import { fetchClub } from '@/store/slices/clubSlice';
-import { Text } from '@/components/Themed';
-import { Colors, Spacing, BorderRadius, FontSize, FontFamily, Shadow } from '@/theme/tokens';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { fetchMyClub } from '../../store/slices/clubSlice';
+import { Text } from '../../components/Themed';
+import { Colors, Spacing, BorderRadius, FontSize, FontFamily, Shadow } from '../../theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { formatCurrency } from '@/utils/helpers';
+import { formatCurrency } from '../../utils/helpers';
 import { useRouter } from 'expo-router';
+import { fetchNextMatch } from '../../store/slices/matchSlice';
 
 const STADIUM_BG = "https://lh3.googleusercontent.com/aida-public/AB6AXuCEcpuFsXaIT_jLAfkxWLC-QVK-rJJZH9cBr5335KDKNKphxHmnpWH6O9P2V9gbdw737PzPXv1EJYzl9EfWSxJkDe0Jyxk5yZ-Yoe_-GS4L1-a0eaVx8WzaT4h3KZLKe_cM_8J9FoTNwSP1jWbHGzTK_EtKF-6NvUXeYoIbH68fDFvcNGH3CLIyDhZZb4Z_boagT8MsrIa4_5vstuhLTYYxRQYIqSGtqw8xKhMlqpVSWoAPTJ9dhrAwZkaPbRZdd6gP64bqHBhybxRR";
 const AVATAR = "https://lh3.googleusercontent.com/aida-public/AB6AXuBINf4CTlKW4Kd6m5WCapC3Z4yiR5H-JjYIRKp0caKKK-uc6Qc6oxrEsSYYyLWh0HBoKrZ4ztGlEKskIccXKmbLxlcVHd8YU7E7c12WqEBHEJIjM2kh9aKnNQa2f7t9Gz0Psvvjbf1p6r5WWZ8RjyOL90QvvnLJ-_T7OGkn6FIBEPm8Vols-nEm-yY32XGXCtzZtCYGuNDiiHJRRJ6W-H0XTEEviO6OCB--kmrCohIataqW15bv3zy3SA-VwccCuWhTB1alibLNDUWt";
@@ -29,11 +30,14 @@ export default function DashboardScreen() {
   const { currentClub, isLoading } = useAppSelector((state) => state.club);
 
   useEffect(() => {
-    dispatch(fetchClub());
+    dispatch(fetchMyClub());
+    dispatch(fetchNextMatch());
   }, [dispatch]);
 
+  const { nextMatch } = useAppSelector((state) => state.match);
+
   const clubName = currentClub?.name || 'Football Club';
-  const balance = currentClub ? formatCurrency(currentClub.balance) : '$0';
+  const balance = currentClub ? formatCurrency(currentClub.cash) : '$0';
   const tokens = currentClub?.tokens || 0;
 
   return (
@@ -94,8 +98,10 @@ export default function DashboardScreen() {
                 <View style={[styles.shieldContainer, { borderColor: 'rgba(42,229,0,0.2)' }]}>
                   <Ionicons name="shield" size={40} color={Colors.primary} />
                 </View>
-                <Text style={styles.teamName} numberOfLines={1}>{clubName}</Text>
-                <Text style={styles.teamHomeAway}>HOME</Text>
+                <Text style={styles.teamName} numberOfLines={1}>
+                  {nextMatch?.homeClubId === currentClub?.id ? clubName : 'Opponent'}
+                </Text>
+                <Text style={styles.teamHomeAway}>{nextMatch?.homeClubId === currentClub?.id ? 'HOME' : 'AWAY'}</Text>
               </View>
 
               <View style={styles.vsContainer}>
@@ -113,12 +119,18 @@ export default function DashboardScreen() {
                 <View style={[styles.shieldContainer, { borderColor: 'rgba(0,227,253,0.2)' }]}>
                   <Ionicons name="shield" size={40} color={Colors.secondaryContainer} />
                 </View>
-                <Text style={styles.teamName} numberOfLines={1}>Madrid Galac..</Text>
-                <Text style={styles.teamHomeAway}>AWAY</Text>
+                <Text style={styles.teamName} numberOfLines={1}>
+                  {nextMatch?.awayClubId === currentClub?.id ? clubName : 'Opponent'}
+                </Text>
+                <Text style={styles.teamHomeAway}>{nextMatch?.awayClubId === currentClub?.id ? 'HOME' : 'AWAY'}</Text>
               </View>
             </View>
 
-            <TouchableOpacity activeOpacity={0.8} style={styles.matchBtnWrapper}>
+            <TouchableOpacity 
+              activeOpacity={0.8} 
+              style={styles.matchBtnWrapper}
+              onPress={() => router.push('/(tabs)/match')}
+            >
               <LinearGradient
                 colors={['#2ae500', '#1ca600']}
                 start={{ x: 0, y: 0 }}

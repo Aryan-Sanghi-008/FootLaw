@@ -13,18 +13,18 @@ import {
   ImageBackground
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Text } from '@/components/Themed';
-import { useAppDispatch, useAppSelector } from '@/store';
-import { register } from '@/store/slices/authSlice';
-import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '@/theme/tokens';
+import { Text } from '../../components/Themed';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { register } from '../../store/slices/authSlice';
+import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '../../theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
-import { COUNTRIES } from '@/constants/countries';
+import { COUNTRIES } from '../../constants/countries';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
-import { GOOGLE_CONFIG } from '@/constants/config';
-import { googleLogin } from '@/store/slices/authSlice';
+import { GOOGLE_CONFIG } from '../../constants/config';
+import { googleLogin } from '../../store/slices/authSlice';
 
 WebBrowser.maybeCompleteAuthSession();
 

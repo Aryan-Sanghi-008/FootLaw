@@ -12,12 +12,12 @@ import {
 import { useRouter } from 'expo-router';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
-import { Text } from '@/components/Themed';
-import { useAppDispatch, useAppSelector } from '@/store';
-import { login, googleLogin } from '@/store/slices/authSlice';
-import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '@/theme/tokens';
+import { Text } from '../../components/Themed';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { login, googleLogin } from '../../store/slices/authSlice';
+import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '../../theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
-import { GOOGLE_CONFIG } from '@/constants/config';
+import { GOOGLE_CONFIG } from '../../constants/config';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 

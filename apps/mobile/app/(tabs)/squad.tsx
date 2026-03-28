@@ -11,19 +11,18 @@ import {
   RefreshControl,
   Platform
 } from 'react-native';
-import { useAppDispatch, useAppSelector } from '@/store';
-import { fetchSquad } from '@/store/slices/squadSlice';
-import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '@/theme/tokens';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { fetchSquad } from '../../store/slices/squadSlice';
+import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '../../theme/tokens';
 import type { IPlayer } from '@footlaw/shared';
-import Pitch3D from '@/components/3d/Pitch3D';
+import Pitch3D from '../../components/3d/Pitch3D';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { formatCurrency } from '../../utils/helpers';
 
-export const formatCurrency = (value: number) => {
-  return '$' + (value / 1000000).toFixed(1) + 'M';
-};
+
 
 const AVATAR = "https://lh3.googleusercontent.com/aida-public/AB6AXuCbQFfGWaaFBEsMVCD32vduNrpNHxh2QLnlWvfklrl4u10wsZ86R076e7ApLipN3V_L9OPn7DlkWBK0Tr08dtz3GDhUOZEe5DXelbCJPJb7dBNRldPhj4dqoTxrepd-iV07iyLZ0Trnz1FdnjRi9TrdfabvfehD1LJpZEUQdSV68nxlrW5ssmKa_LwiI8QxDjmpA7ufwCkG5dcZqS4I3TViAcoaSiRGNhAQjrv_k0M8rB_O7MyE_Q9_CgLTICwBasM4PW_95iDKLOMO";
 
@@ -128,7 +127,7 @@ export default function SquadScreen() {
     }));
   }, [startingEleven]);
 
-  const balance = currentClub ? formatCurrency(currentClub.balance) : '$0';
+  const balance = currentClub ? formatCurrency(currentClub.cash) : '$0';
   const tokens = currentClub?.tokens || 0;
 
   if (isLoading && players.length === 0) {

@@ -5,26 +5,40 @@ import {
   ImageBackground, 
   TouchableOpacity,
   Image,
-  Text as RNText 
+  Text as RNText,
+  Platform
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAppSelector } from '@/store';
-import { Text } from '@/components/Themed';
-import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '@/theme/tokens';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { fetchNextMatch } from '../../store/slices/matchSlice';
+import { fetchMyClub } from '../../store/slices/clubSlice';
+import { Text } from '../../components/Themed';
+import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '../../theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { formatCurrency } from '@/utils/helpers';
+import { formatCurrency } from '../../utils/helpers';
 
 const AVATAR = "https://lh3.googleusercontent.com/aida-public/AB6AXuB-UdCQvanlnJyonuySo03rm4Lgc-AFo-pIHf1ucRNnYtNYzUN9MTacwn_HdMpWPkeCt3kho5ROSru4QNyIUuPVIwRVaO_rkFOPvuDmol7be1_A7N3usMDhw7Fud_36J29br2Mxj3scM6V8uv1QgydkPMnaaArTAZ1rUf_1tWOaAN2lVvLusJKKxb6QbJlxZF4C2J28I1bGS-GEIm7CPMILrzM8RVZAWKMoFVF0dV_7a-ZiHSknFFq2oaWfMKbnTFtfLIWFMWZC1qco";
 
 export default function MatchCampaignScreen() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const { currentClub } = useAppSelector((state) => state.club);
+  const { nextMatch, isLoading } = useAppSelector((state) => state.match);
 
-  const balance = currentClub ? formatCurrency(currentClub.balance) : '$0';
+  React.useEffect(() => {
+    dispatch(fetchMyClub());
+    dispatch(fetchNextMatch());
+  }, [dispatch]);
+
+  const balance = currentClub ? formatCurrency(currentClub.cash) : '$0';
   const tokens = currentClub?.tokens || 0;
+
+  const oppositionName = nextMatch 
+    ? (nextMatch.homeClubId === currentClub?.id ? 'Away Team' : 'Home Team') 
+    : 'Waiting...';
 
   return (
     <View style={styles.container}>
@@ -85,7 +99,9 @@ export default function MatchCampaignScreen() {
               <View style={styles.objectiveHeader}>
                  <View>
                     <Text style={styles.stageLabel}>CURRENT STAGE</Text>
-                    <Text style={styles.stageTitle}>The Madrid Crossing</Text>
+                    <Text style={styles.stageTitle}>
+                      {nextMatch?.competition || 'The Madrid Crossing'}
+                    </Text>
                  </View>
                  <View style={styles.iconBox}>
                     <Ionicons name="football" size={24} color={Colors.secondaryContainer} />
@@ -109,7 +125,7 @@ export default function MatchCampaignScreen() {
                  </View>
                  <View style={styles.statBox}>
                     <Text style={styles.statBoxLabel}>OPPOSITION</Text>
-                    <Text style={styles.oppText}>Real Madrid C.F.</Text>
+                    <Text style={styles.oppText}>{oppositionName}</Text>
                  </View>
               </View>
 
@@ -130,14 +146,20 @@ export default function MatchCampaignScreen() {
                  </View>
               </View>
 
-              <TouchableOpacity activeOpacity={0.8} onPress={() => router.push('/sim')}>
+              <TouchableOpacity 
+                activeOpacity={0.8} 
+                onPress={() => nextMatch && router.push(`/sim?matchId=${nextMatch._id}`)}
+                disabled={!nextMatch || isLoading}
+              >
                  <LinearGradient
                    colors={['#2ae500', '#1ca600']}
                    start={{ x: 0, y: 0 }}
                    end={{ x: 1, y: 1 }}
-                   style={styles.startBtn}
+                   style={[styles.startBtn, (!nextMatch || isLoading) && { opacity: 0.5 }]}
                  >
-                    <Text style={styles.startBtnText}>START MATCH</Text>
+                    <Text style={styles.startBtnText}>
+                      {isLoading ? 'PREPARING...' : (nextMatch ? 'START MATCH' : 'NO FIXTURES')}
+                    </Text>
                  </LinearGradient>
               </TouchableOpacity>
            </BlurView>

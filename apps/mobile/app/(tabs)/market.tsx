@@ -9,14 +9,14 @@ import {
   TextInput,
   Platform
 } from 'react-native';
-import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '@/theme/tokens';
+import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '../../theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAppSelector, useAppDispatch } from '@/store';
-import { formatCurrency } from '@/app/(tabs)/squad';
-import { fetchLiveAuctions, placeBid, fetchEliteScouts } from '@/store/slices/marketSlice';
+import { useAppSelector, useAppDispatch } from '../../store';
+import { formatCurrency } from '../../utils/helpers';
+import { fetchLiveAuctions, placeBid, fetchEliteScouts } from '../../store/slices/marketSlice';
 
 const AVATAR = "https://lh3.googleusercontent.com/aida-public/AB6AXuCIp0ZZDCK0GVWy443tybeztyhlTerTSxR53NH5b7n1mGmfeninSfOmrNed7a9kZ-n14UprxLyqJ8ImY2vYw-l2EKzCDO9orz04eRZgfEokGNAi5OelZOI-MOvpg2NeYCk-4IZUxsqKZOLLS7bjm3VFbB5j84uHKMuBSMyEyY_P71PEVFZxy5XaeK6EzfYfxvqFRAVNQMkWFQUwHJBml4HE5kTtiuEHLsCk0W7dqErUMR_g2qsV9oMVFsmprhLPwhO61lMCnNT4PV0u";
 
