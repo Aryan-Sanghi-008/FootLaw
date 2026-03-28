@@ -11,10 +11,10 @@ const router = Router();
 
 function generateTokens(userId: string) {
   const accessToken = jwt.sign({ userId }, config.jwtSecret, {
-    expiresIn: config.jwtExpiresIn,
+    expiresIn: config.jwtExpiresIn as any,
   });
   const refreshToken = jwt.sign({ userId }, config.jwtRefreshSecret, {
-    expiresIn: config.jwtRefreshExpiresIn,
+    expiresIn: config.jwtRefreshExpiresIn as any,
   });
   return { accessToken, refreshToken };
 }
