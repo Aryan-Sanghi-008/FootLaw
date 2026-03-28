@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  StyleSheet, 
   TextInput, 
   TouchableOpacity, 
   KeyboardAvoidingView, 
@@ -82,47 +81,47 @@ export default function RegisterScreen() {
   return (
     <ImageBackground 
       source={{ uri: STADIUM_BG }} 
-      style={styles.backgroundImage}
+      className="flex-1 bg-background"
       imageStyle={{ opacity: 0.6 }}
     >
       <LinearGradient
         colors={['rgba(15,19,31,0.8)', Colors.background]}
-        style={styles.overlayGradient}
+        className="absolute inset-0"
       />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
+        className="flex-1"
       >
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 20, paddingTop: 80, justifyContent: 'center' }} showsVerticalScrollIndicator={false}>
           
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <View className="flex-row items-center mb-3xl">
+            <TouchableOpacity onPress={() => router.back()} className="p-sm">
               <Ionicons name="arrow-back" size={24} color={Colors.white} />
             </TouchableOpacity>
-            <View style={{ flex: 1, alignItems: 'center', paddingRight: 24 }}>
-              <Text style={styles.title}>Establish Club</Text>
-              <Text style={styles.subtitle}>Enter your manager details</Text>
+            <View className="flex-1 items-center pr-6">
+              <Text className="font-headingBold text-2xl text-white tracking-tighter">Establish Club</Text>
+              <Text className="font-regular text-sm text-onSurfaceVariant mt-0.5">Enter your manager details</Text>
             </View>
           </View>
 
-          <BlurView intensity={40} tint="dark" style={styles.glassPanel}>
+          <BlurView intensity={40} tint="dark" className="w-full rounded-[32px] p-2xl overflow-hidden border border-primary/15">
             
-            <View style={styles.row}>
-              <View style={[styles.inputGroup, { flex: 1, marginRight: Spacing.md }]}>
-                <Text style={styles.label}>FIRST NAME</Text>
+            <View className="flex-row">
+              <View className="flex-1 mr-md mb-xl">
+                <Text className="font-headingBold text-[10px] text-primary tracking-[1.5px] mb-sm ml-1">FIRST NAME</Text>
                 <TextInput
-                  style={styles.input}
+                  className="h-14 bg-surfaceContainerLow rounded-xl px-xl color-textPrimary font-regular text-md"
                   placeholder="Pep"
                   placeholderTextColor={Colors.outline}
                   value={firstName}
                   onChangeText={setFirstName}
                 />
               </View>
-              <View style={[styles.inputGroup, { flex: 1 }]}>
-                <Text style={styles.label}>LAST NAME</Text>
+              <View className="flex-1 mb-xl">
+                <Text className="font-headingBold text-[10px] text-primary tracking-[1.5px] mb-sm ml-1">LAST NAME</Text>
                 <TextInput
-                  style={styles.input}
+                  className="h-14 bg-surfaceContainerLow rounded-xl px-xl color-textPrimary font-regular text-md"
                   placeholder="Guardiola"
                   placeholderTextColor={Colors.outline}
                   value={lastName}
@@ -131,25 +130,25 @@ export default function RegisterScreen() {
               </View>
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>NATIONALITY</Text>
+            <View className="mb-xl">
+              <Text className="font-headingBold text-[10px] text-primary tracking-[1.5px] mb-sm ml-1">NATIONALITY</Text>
               <TouchableOpacity 
-                style={styles.countrySelector} 
+                className="h-14 bg-surfaceContainerLow rounded-xl flex-row items-center justify-between px-xl" 
                 onPress={() => setIsPickerVisible(true)}
               >
-                <Text style={[styles.countryText, !nationality && { color: Colors.outline }]}>
+                <Text className={`font-regular text-md ${!nationality ? 'text-outline' : 'text-textPrimary'}`}>
                   {nationality || 'Select your country'}
                 </Text>
                 <Ionicons name="chevron-down" size={20} color={Colors.onSurfaceVariant} />
               </TouchableOpacity>
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>TACTICAL ID / EMAIL</Text>
-              <View style={styles.inputWrapper}>
-                <Ionicons name="mail" size={20} color={Colors.onSurfaceVariant} style={styles.inputIcon} />
+            <View className="mb-xl">
+              <Text className="font-headingBold text-[10px] text-primary tracking-[1.5px] mb-sm ml-1">TACTICAL ID / EMAIL</Text>
+              <View className="relative justify-center">
+                <Ionicons name="mail" size={20} color={Colors.onSurfaceVariant} className="absolute left-lg z-10" />
                 <TextInput
-                  style={styles.inputWithIcon}
+                  className="h-14 bg-surfaceContainerLow rounded-xl pl-12 pr-xl color-textPrimary font-regular text-md"
                   placeholder="manager@footlaw.com"
                   placeholderTextColor={Colors.outline}
                   value={email}
@@ -160,12 +159,13 @@ export default function RegisterScreen() {
               </View>
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>ENCRYPTION KEY / PASSWORD</Text>
-              <View style={styles.inputWrapper}>
-                <Ionicons name="lock-closed" size={20} color={Colors.onSurfaceVariant} style={styles.inputIcon} />
+            <View className="mb-xl">
+              <Text className="font-headingBold text-[10px] text-primary tracking-[1.5px] mb-sm ml-1">ENCRYPTION KEY / PASSWORD</Text>
+              <View className="relative justify-center">
+                <Ionicons name="lock-closed" size={20} color={Colors.onSurfaceVariant} className="absolute left-lg z-10" />
                 <TextInput
-                  style={[styles.inputWithIcon, { paddingRight: 50 }]}
+                  className="h-14 bg-surfaceContainerLow rounded-xl pl-12 pr-xl color-textPrimary font-regular text-md"
+                  style={{ paddingRight: 50 }}
                   placeholder="Minimum 6 characters"
                   placeholderTextColor={Colors.outline}
                   value={password}
@@ -173,8 +173,8 @@ export default function RegisterScreen() {
                   secureTextEntry={!showPassword}
                 />
                 <TouchableOpacity 
-                  onPress={() => setShowPassword(!showPassword)}
-                  style={styles.eyeIcon}
+                   onPress={() => setShowPassword(!showPassword)}
+                   className="absolute right-md p-md"
                 >
                   <Ionicons 
                     name={showPassword ? 'eye-off' : 'eye'} 
@@ -186,9 +186,9 @@ export default function RegisterScreen() {
             </View>
 
             {error && (
-              <View style={styles.errorContainer}>
+              <View className="flex-row items-center justify-center bg-error/10 p-md rounded-lg mt-md gap-2">
                 <Ionicons name="warning" size={16} color={Colors.error} />
-                <Text style={styles.errorText}>{error}</Text>
+                <Text className="text-error text-xs font-medium">{error}</Text>
               </View>
             )}
 
@@ -196,40 +196,40 @@ export default function RegisterScreen() {
               activeOpacity={0.8}
               onPress={handleRegister}
               disabled={isLoading}
-              style={{ marginTop: Spacing.xl }}
+              className="mt-xl"
             >
               <LinearGradient
                 colors={['#2ae500', '#1ca600']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={styles.registerButton}
+                className="h-[60px] rounded-xl flex-row items-center justify-center"
               >
-                <Text style={styles.registerButtonText}>
+                <Text className="font-headingBlack text-lg text-onPrimary">
                   {isLoading ? 'Processing...' : 'Create Account'}
                 </Text>
-                <Ionicons name="arrow-forward" size={20} color={Colors.onPrimary} style={{ marginLeft: 8 }} />
+                <Ionicons name="arrow-forward" size={20} color={Colors.onPrimary} className="ml-2" />
               </LinearGradient>
             </TouchableOpacity>
 
-            <View style={styles.dividerContainer}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>OR SIGN UP WITH</Text>
-              <View style={styles.dividerLine} />
+            <View className="flex-row items-center my-xl">
+              <View className="flex-1 h-[1px] bg-white/5" />
+              <Text className="font-bold text-[9px] text-outline px-md tracking-[2px]">OR SIGN UP WITH</Text>
+              <View className="flex-1 h-[1px] bg-white/5" />
             </View>
 
             <TouchableOpacity 
-              style={styles.googleButton}
+              className="h-14 rounded-xl bg-white/5 flex-row items-center justify-center gap-3 border border-white/10"
               onPress={() => promptAsync()}
               disabled={!request || isLoading}
             >
               <Ionicons name="logo-google" size={20} color={Colors.white} />
-              <Text style={styles.googleButtonText}>GOOGLE ACCOUNT</Text>
+              <Text className="font-headingBlack text-sm text-white tracking-wider">GOOGLE ACCOUNT</Text>
             </TouchableOpacity>
 
-            <View style={styles.footer}>
-              <Text style={styles.footerText}>Already have a club?</Text>
+            <View className="flex-row justify-center mt-2xl gap-1.5">
+              <Text className="font-regular text-sm text-onSurfaceVariant">Already have a club?</Text>
               <TouchableOpacity onPress={() => router.replace('/(auth)/login')}>
-                <Text style={styles.linkText}>Sign In</Text>
+                <Text className="font-bold text-sm text-primary">Sign In</Text>
               </TouchableOpacity>
             </View>
 
@@ -238,18 +238,18 @@ export default function RegisterScreen() {
       </KeyboardAvoidingView>
 
       <Modal visible={isPickerVisible} animationType="slide" presentationStyle="pageSheet">
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Select Nationality</Text>
+        <SafeAreaView className="flex-1 bg-background">
+          <View className="flex-row justify-between items-center p-xl border-b border-surfaceContainerHigh">
+            <Text className="font-headingBold text-lg text-white">Select Nationality</Text>
             <TouchableOpacity onPress={() => setIsPickerVisible(false)}>
-              <Text style={styles.closeText}>Close</Text>
+              <Text className="font-bold text-primary">Close</Text>
             </TouchableOpacity>
           </View>
           
-          <View style={styles.searchBarContainer}>
+          <View className="flex-row items-center bg-surfaceContainerLow m-lg px-lg rounded-xl h-[50px]">
             <Ionicons name="search" size={20} color={Colors.outline} />
             <TextInput
-              style={styles.searchBar}
+              className="flex-1 ml-sm color-textPrimary font-regular"
               placeholder="Search country..."
               placeholderTextColor={Colors.outline}
               value={searchQuery}
@@ -261,12 +261,12 @@ export default function RegisterScreen() {
             data={filteredCountries}
             keyExtractor={(item) => item.value}
             renderItem={({ item }) => (
-              <TouchableOpacity style={styles.countryItem} onPress={() => selectCountry(item.label)}>
-                <Text style={styles.countryLabel}>{item.label}</Text>
+              <TouchableOpacity className="flex-row justify-between items-center p-xl" onPress={() => selectCountry(item.label)}>
+                <Text className="font-medium text-md text-textPrimary">{item.label}</Text>
                 {nationality === item.label && <Ionicons name="checkmark" size={20} color={Colors.primary} />}
               </TouchableOpacity>
             )}
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            ItemSeparatorComponent={() => <View className="h-[1px] bg-surfaceContainerHigh ml-xl" />}
           />
         </SafeAreaView>
       </Modal>
@@ -275,210 +275,4 @@ export default function RegisterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  backgroundImage: { flex: 1, backgroundColor: Colors.background },
-  overlayGradient: { ...StyleSheet.absoluteFillObject },
-  container: { flex: 1 },
-  scrollContent: {
-    flexGrow: 1,
-    padding: Spacing['xl'],
-    paddingTop: 80,
-    justifyContent: 'center',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing['3xl'],
-  },
-  backButton: {
-    padding: Spacing.sm,
-  },
-  title: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: FontSize['2xl'],
-    color: Colors.white,
-    letterSpacing: -0.5,
-  },
-  subtitle: {
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.sm,
-    color: Colors.onSurfaceVariant,
-    marginTop: 2,
-  },
-  glassPanel: {
-    width: '100%',
-    borderRadius: 32,
-    padding: Spacing['2xl'],
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(121, 255, 91, 0.15)',
-  },
-  row: {
-    flexDirection: 'row',
-  },
-  inputGroup: {
-    marginBottom: Spacing.xl,
-  },
-  label: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 10,
-    color: Colors.primary,
-    letterSpacing: 1.5,
-    marginBottom: Spacing.sm,
-    marginLeft: 4,
-  },
-  input: {
-    height: 56,
-    backgroundColor: Colors.surfaceContainerLow,
-    borderRadius: BorderRadius.xl,
-    paddingHorizontal: Spacing.xl,
-    color: Colors.textPrimary,
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.md,
-  },
-  inputWrapper: {
-    position: 'relative',
-    justifyContent: 'center',
-  },
-  inputIcon: {
-    position: 'absolute',
-    left: Spacing.lg,
-    zIndex: 1,
-  },
-  inputWithIcon: {
-    height: 56,
-    backgroundColor: Colors.surfaceContainerLow,
-    borderRadius: BorderRadius.xl,
-    paddingLeft: 46,
-    paddingRight: Spacing.xl,
-    color: Colors.textPrimary,
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.md,
-  },
-  eyeIcon: {
-    position: 'absolute',
-    right: Spacing.md,
-    padding: Spacing.md,
-  },
-  countrySelector: {
-    height: 56,
-    backgroundColor: Colors.surfaceContainerLow,
-    borderRadius: BorderRadius.xl,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.xl,
-  },
-  countryText: {
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.md,
-    color: Colors.textPrimary,
-  },
-  errorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255, 68, 68, 0.1)',
-    padding: Spacing.md,
-    borderRadius: BorderRadius.lg,
-    marginTop: Spacing.md,
-    gap: 8,
-  },
-  errorText: {
-    color: Colors.error,
-    fontSize: FontSize.xs,
-    fontFamily: FontFamily.medium,
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: Spacing.xl,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-  },
-  dividerText: {
-    fontFamily: FontFamily.bold,
-    fontSize: 9,
-    color: Colors.outline,
-    paddingHorizontal: Spacing.md,
-    letterSpacing: 2,
-  },
-  googleButton: {
-    height: 56,
-    borderRadius: BorderRadius.xl,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  googleButtonText: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: FontSize.sm,
-    color: Colors.white,
-    letterSpacing: 1,
-  },
-  registerButton: {
-    height: 60,
-    borderRadius: BorderRadius.xl,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  registerButtonText: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: FontSize.lg,
-    color: Colors.onPrimary,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: Spacing['2xl'],
-    gap: 6,
-  },
-  footerText: {
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.sm,
-    color: Colors.onSurfaceVariant,
-  },
-  linkText: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.sm,
-    color: Colors.primary,
-  },
-  // Modal
-  modalContainer: { flex: 1, backgroundColor: Colors.background },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: Spacing.xl,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.surfaceContainerHigh,
-  },
-  modalTitle: { fontFamily: FontFamily.headingBold, fontSize: FontSize.lg, color: Colors.white },
-  closeText: { fontFamily: FontFamily.bold, color: Colors.primary },
-  searchBarContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.surfaceContainerLow,
-    margin: Spacing.lg,
-    paddingHorizontal: Spacing.lg,
-    borderRadius: BorderRadius.xl,
-    height: 50,
-  },
-  searchBar: { flex: 1, marginLeft: Spacing.sm, color: Colors.textPrimary, fontFamily: FontFamily.regular },
-  countryItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: Spacing.xl,
-  },
-  countryLabel: { fontFamily: FontFamily.medium, fontSize: FontSize.md, color: Colors.textPrimary },
-  separator: { height: 1, backgroundColor: Colors.surfaceContainerHigh, marginLeft: Spacing.xl },
-});
+

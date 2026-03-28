@@ -26,17 +26,17 @@ router.get('/next', authMiddleware, async (req: AuthRequest, res: Response) => {
 
     if (!match) {
         // If no match found, create a dummy world tour match for now
-        const opponent = await Club.findOne({ name: 'London FC' });
+        const opponent = await Club.findOne({ name: 'Real Madrid' });
         if (opponent && opponent._id.toString() !== club._id.toString()) {
             const nextMatch = await Match.create({
                 homeClubId: club._id,
                 awayClubId: opponent._id,
                 status: 'scheduled',
-                competition: 'World Tour',
-                date: new Date(Date.now() + 3600000), // 1 hour latter
+                competition: 'European Elite',
+                matchday: 1,
+                date: new Date(Date.now() + 3600000), // 1 hour later
             });
-            res.json({ success: true, data: nextMatch });
-            return;
+            return res.json({ success: true, data: nextMatch });
         }
     }
 

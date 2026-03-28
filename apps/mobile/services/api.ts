@@ -5,13 +5,21 @@ import Constants from 'expo-constants';
 // ---- Resolve Local Host Dynamically ----
 // This is the most reliable way to connect to your local dev server from Expo Go
 const getBaseUrl = () => {
+  // Priority 1: Environment Variable (Production or Manual Override)
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+
+  // Priority 2: Dynamic Local Host (Dev mode only)
   if (__DEV__) {
     // Metro hostUri looks like: 192.168.1.4:8081
     const host = Constants.expoConfig?.hostUri?.split(':')[0] || 'localhost';
     const url = `http://${host}:3001/api`;
-    console.log('🔗 API Base URL:', url);
+    console.log('🔗 API Base URL (Dynamic):', url);
     return url;
   }
+
+  // Fallback for production if no env var is set
   return 'https://api.footlaw.app/api';
 };
 

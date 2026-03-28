@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
+import "../global.css";
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Provider } from 'react-redux';
 import { store, useAppDispatch, useAppSelector } from '../store';
 import { checkAuth } from '../store/slices/authSlice';
-import { Colors } from '../theme';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { Colors } from '../theme/tokens';
+import { View, ActivityIndicator } from 'react-native';
 import { useFonts } from 'expo-font';
 import {
   Inter_400Regular,
@@ -49,7 +50,7 @@ function RootLayoutInner() {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View className="flex-1 justify-center items-center bg-background">
         <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
@@ -96,11 +97,4 @@ export default function RootLayout() {
   );
 }
 
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.background,
-  },
-});
+

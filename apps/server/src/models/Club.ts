@@ -18,6 +18,7 @@ export interface IClubDocument extends Document {
   leagueId: mongoose.Types.ObjectId | null;
   tier: number;
   facilities: IFacilitiesData;
+  worldTourProgress: { regionId: string; completedMatches: number }[];
   tutorialCompleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -54,6 +55,12 @@ const ClubSchema = new Schema<IClubDocument>(
     leagueId: { type: Schema.Types.ObjectId, ref: 'League', default: null },
     tier: { type: Number, default: 10 }, // Start at the lowest tier
     facilities: { type: FacilitiesSchema, default: () => ({}) },
+    worldTourProgress: [
+      {
+        regionId: { type: String, required: true },
+        completedMatches: { type: Number, default: 0 },
+      },
+    ],
     tutorialCompleted: { type: Boolean, default: false },
   },
   { timestamps: true }

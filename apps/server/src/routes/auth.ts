@@ -51,7 +51,7 @@ router.post('/register', async (req: Request, res: Response) => {
     const user = await User.create({
       email: email.toLowerCase(),
       password: hashedPassword,
-      profileCompleted: true, // Mark as completed since we're collecting fields now
+      profileCompleted: false, // Must complete onboarding next
     });
 
     const profile = await Profile.create({
@@ -153,7 +153,7 @@ router.post('/google', async (req: Request, res: Response) => {
       user = await User.create({
         email,
         password: Math.random().toString(36).slice(-10), // Random placeholder
-        profileCompleted: true,
+        profileCompleted: false,
       });
 
       // Also create a basic profile for the new Google user

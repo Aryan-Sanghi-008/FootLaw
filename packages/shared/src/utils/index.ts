@@ -54,7 +54,7 @@ export function effectiveStat(
 const POSITION_GROUPS: Record<string, Position[]> = {
   goalkeeper: [Position.GK],
   defender: [Position.DL, Position.DC, Position.DR],
-  midfielder: [Position.ML, Position.MC, Position.MR],
+  midfielder: [Position.ML, Position.MC, Position.MR, Position.DMC],
   attacker: [Position.AML, Position.AMC, Position.AMR, Position.ST],
 };
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import { 
-  StyleSheet, 
   View, 
   ImageBackground, 
   TouchableOpacity,
@@ -41,107 +40,108 @@ export default function MatchCampaignScreen() {
     : 'Waiting...';
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-background">
       {/* Background Map */}
-      <View style={styles.backgroundContainer}>
+      <View className="absolute inset-0 z-0 justify-center items-center">
          <ImageBackground 
             source={{ uri: 'https://placeholder.pics/svg/300' }} 
-            style={[styles.bgImage, { opacity: 0.1 }]} 
+            className="absolute inset-0 opacity-10" 
+            resizeMode="cover"
          />
       </View>
 
       {/* Map Markers */}
-      <View style={[styles.marker, { top: '30%', left: '20%' }]}>
-        <View style={styles.markerCircleCompleted}>
+      <View className="absolute items-center z-10" style={{ top: '30%', left: '20%' }}>
+        <View className="w-8 h-8 rounded-full bg-primary/20 border-2 border-primary items-center justify-center shadow-lg shadow-primary/50">
            <Ionicons name="checkmark" size={16} color={Colors.primary} />
         </View>
-        <View style={styles.markerLabelBox}>
-           <Text style={styles.markerLabel}>Rio Carnival</Text>
+        <View className="bg-surfaceContainer px-2 py-0.5 rounded mt-2">
+           <Text className="font-bold text-[10px] text-onSurfaceVariant uppercase">Rio Carnival</Text>
         </View>
       </View>
 
-      <View style={[styles.marker, { top: '45%', left: '50%' }]}>
-        <View style={styles.pulseRing} />
-        <View style={styles.markerCircleActive}>
+      <View className="absolute items-center z-10" style={{ top: '45%', left: '50%' }}>
+        <View className="absolute w-[60px] h-[60px] rounded-full bg-secondaryContainer/20 -top-1.5 -left-1.5" />
+        <View className="w-12 h-12 rounded-full bg-secondaryContainer/20 border-4 border-secondaryContainer items-center justify-center shadow-2xl shadow-secondaryContainer/60">
            <Ionicons name="location" size={24} color={Colors.secondaryContainer} />
         </View>
-        <View style={[styles.markerLabelBox, { borderColor: 'rgba(0,227,253,0.3)', borderWidth: 1 }]}>
-           <Text style={[styles.markerLabel, { color: Colors.secondaryContainer }]}>Madrid Open</Text>
+        <View className="bg-surfaceContainer px-2 py-0.5 rounded mt-2 border border-secondaryContainer/30">
+           <Text className="font-bold text-[10px] text-secondaryContainer uppercase">Madrid Open</Text>
         </View>
       </View>
 
-      <View style={[styles.marker, { top: '60%', left: '80%', opacity: 0.4 }]}>
-        <View style={styles.markerCircleLocked}>
+      <View className="absolute items-center z-10 opacity-40" style={{ top: '60%', left: '80%' }}>
+        <View className="w-8 h-8 rounded-full bg-surfaceContainerHighest border-2 border-outline items-center justify-center">
            <Ionicons name="lock-closed" size={16} color={Colors.outline} />
         </View>
-        <View style={styles.markerLabelBox}>
-           <Text style={styles.markerLabelLocked}>Tokyo Neon</Text>
+        <View className="bg-surfaceContainer px-2 py-0.5 rounded mt-2">
+           <Text className="font-bold text-[10px] text-outline uppercase">Tokyo Neon</Text>
         </View>
       </View>
 
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <SafeAreaView className="flex-1 z-10" edges={['top']}>
         {/* Top App Bar */}
-        <BlurView intensity={30} tint="dark" style={styles.appBar}>
-          <View style={styles.appBarContent}>
-            <View style={styles.avatarContainer}>
-              <Image source={{ uri: AVATAR }} style={styles.avatar} />
+        <BlurView intensity={30} tint="dark" className="flex-row items-center justify-between px-xl py-md">
+          <View className="flex-row items-center gap-md">
+            <View className="w-10 h-10 rounded-full border-2 border-primary overflow-hidden">
+              <Image source={{ uri: AVATAR }} className="w-full h-full" />
             </View>
-            <RNText style={styles.brandTitle}>FOOTLAW</RNText>
+            <RNText className="font-headingBlack text-xl text-white tracking-tighter">FOOTLAW</RNText>
           </View>
-          <View style={styles.statsPill}>
-             <Text style={styles.statsText}>{tokens} <Ionicons name="diamond" size={10}/> • {balance}</Text>
+          <View className="bg-surfaceContainerLow px-md py-sm rounded-full border border-white/5">
+             <Text className="font-bold text-xs text-onSurfaceVariant">{tokens} <Ionicons name="diamond" size={10}/> • {balance}</Text>
           </View>
         </BlurView>
 
         {/* Objective Card Overlay */}
-        <View style={styles.contentWrapper}>
-           <BlurView intensity={20} tint="dark" style={styles.objectiveCard}>
-              <View style={styles.objectiveHeader}>
+        <View className="flex-1 justify-center px-xl">
+           <BlurView intensity={20} tint="dark" className="rounded-[24px] p-xl border border-white/5 overflow-hidden">
+              <View className="flex-row justify-between items-start mb-xl">
                  <View>
-                    <Text style={styles.stageLabel}>CURRENT STAGE</Text>
-                    <Text style={styles.stageTitle}>
+                    <Text className="font-bold text-[10px] text-secondaryContainer tracking-[2px] mb-1">CURRENT STAGE</Text>
+                    <Text className="font-headingBlack text-[28px] text-white tracking-tighter">
                       {nextMatch?.competition || 'The Madrid Crossing'}
                     </Text>
                  </View>
-                 <View style={styles.iconBox}>
+                 <View className="bg-surfaceContainerHighest p-md rounded-lg">
                     <Ionicons name="football" size={24} color={Colors.secondaryContainer} />
                  </View>
               </View>
 
-              <Text style={styles.objectiveDesc}>
+              <Text className="font-regular text-sm text-onSurfaceVariant leading-5 mb-xl">
                  Face off against the capital's elite. Their high-press tactical engine requires precise passing and counter-attacking stability.
               </Text>
 
-              <View style={styles.statsGrid}>
-                 <View style={styles.statBox}>
-                    <Text style={styles.statBoxLabel}>DIFFICULTY</Text>
-                    <View style={{ flexDirection: 'row', gap: 2 }}>
+              <View className="flex-row gap-md mb-xl">
+                 <View className="flex-1 bg-surfaceContainerLow p-md rounded-lg border border-white/5">
+                    <Text className="font-bold text-[10px] text-onSurfaceVariant tracking-[1.5px] mb-2 uppercase">DIFFICULTY</Text>
+                    <View className="flex-row gap-0.5">
                        <Ionicons name="star" size={14} color={Colors.primary} />
                        <Ionicons name="star" size={14} color={Colors.primary} />
                        <Ionicons name="star" size={14} color={Colors.primary} />
                        <Ionicons name="star" size={14} color={Colors.primary} />
-                       <Ionicons name="star" size={14} color={Colors.surfaceBorder} />
+                       <Ionicons name="star" size={14} color={Colors.outline} />
                     </View>
                  </View>
-                 <View style={styles.statBox}>
-                    <Text style={styles.statBoxLabel}>OPPOSITION</Text>
-                    <Text style={styles.oppText}>{oppositionName}</Text>
+                 <View className="flex-1 bg-surfaceContainerLow p-md rounded-lg border border-white/5">
+                    <Text className="font-bold text-[10px] text-onSurfaceVariant tracking-[1.5px] mb-2 uppercase">OPPOSITION</Text>
+                    <Text className="font-bold text-sm text-white">{oppositionName}</Text>
                  </View>
               </View>
 
-              <View style={styles.rewardsSection}>
-                 <Text style={styles.statBoxLabel}>VICTORY REWARDS</Text>
-                 <View style={styles.rewardsRow}>
-                    <View style={styles.rewardPillPrimary}>
+              <View className="mb-8">
+                 <Text className="font-bold text-[10px] text-onSurfaceVariant tracking-[1.5px] mb-2 uppercase">VICTORY REWARDS</Text>
+                 <View className="flex-row gap-2">
+                    <View className="flex-row items-center bg-primary/10 border border-primary/20 px-md py-sm rounded-md gap-1.5">
                        <Ionicons name="cash" size={16} color={Colors.primary} />
-                       <Text style={styles.rewardTextPrimary}>250k</Text>
+                       <Text className="font-bold text-sm text-primary">250k</Text>
                     </View>
-                    <View style={styles.rewardPillTertiary}>
+                    <View className="flex-row items-center bg-tertiary/10 border border-tertiary/20 px-md py-sm rounded-md gap-1.5">
                        <Ionicons name="ticket" size={16} color={Colors.tertiary} />
-                       <Text style={styles.rewardTextTertiary}>15 T</Text>
+                       <Text className="font-bold text-sm text-tertiary">15 T</Text>
                     </View>
-                    <View style={styles.rewardPillSecondary}>
-                       <Text style={styles.rewardTextSecondary}>XP</Text>
+                    <View className="flex-row items-center bg-surfaceContainerHighest border border-white/10 px-md py-sm rounded-md gap-1.5">
+                       <Text className="font-bold text-sm text-secondaryContainer">XP</Text>
                     </View>
                  </View>
               </View>
@@ -150,14 +150,15 @@ export default function MatchCampaignScreen() {
                 activeOpacity={0.8} 
                 onPress={() => nextMatch && router.push(`/sim?matchId=${nextMatch._id}`)}
                 disabled={!nextMatch || isLoading}
+                className={(!nextMatch || isLoading) ? 'opacity-50' : ''}
               >
                  <LinearGradient
                    colors={['#2ae500', '#1ca600']}
                    start={{ x: 0, y: 0 }}
                    end={{ x: 1, y: 1 }}
-                   style={[styles.startBtn, (!nextMatch || isLoading) && { opacity: 0.5 }]}
+                   className="h-[60px] rounded-xl justify-center items-center"
                  >
-                    <Text style={styles.startBtnText}>
+                    <Text className="font-headingBlack text-lg text-onPrimary tracking-widest">
                       {isLoading ? 'PREPARING...' : (nextMatch ? 'START MATCH' : 'NO FIXTURES')}
                     </Text>
                  </LinearGradient>
@@ -168,33 +169,33 @@ export default function MatchCampaignScreen() {
       </SafeAreaView>
 
       {/* Season Pass Progress Track */}
-      <View style={styles.seasonPassContainer}>
-         <BlurView intensity={50} tint="dark" style={styles.seasonPassBox}>
-            <View style={styles.spHeader}>
-               <Text style={styles.spTitle}>SEASON PASS PROGRESS</Text>
-               <View style={styles.spLevelBadge}>
-                  <Text style={styles.spLevelText}>Level 12 / 50</Text>
+      <View className={`absolute left-0 right-0 px-xl z-20 ${Platform.OS === 'ios' ? 'bottom-[110px]' : 'bottom-[80px]'}`}>
+         <BlurView intensity={50} tint="dark" className="p-lg rounded-[24px] border border-white/5 overflow-hidden">
+            <View className="flex-row justify-between items-center mb-lg">
+               <Text className="font-headingBlack text-[10px] text-primary tracking-[2px] uppercase">SEASON PASS PROGRESS</Text>
+               <View className="bg-surfaceContainerHighest px-md py-1 rounded-full">
+                  <Text className="font-bold text-[10px] text-onSurfaceVariant">Level 12 / 50</Text>
                </View>
             </View>
 
-            <View style={styles.progressTrackWrapper}>
-               <View style={styles.progressTrackBg} />
-               <View style={[styles.progressTrackFill, { width: '35%' }]} />
+            <View className="h-10 justify-center relative">
+               <View className="absolute left-0 right-0 h-2 bg-surfaceContainerHighest rounded-full" />
+               <View className="absolute left-0 h-2 bg-primary rounded-full" style={{ width: '35%' }} />
                
-               <View style={styles.nodesContainer}>
-                  <View style={styles.nodeCompleted}>
+               <View className="absolute inset-0 flex-row justify-between items-center">
+                  <View className="w-9 h-9 rounded-xl bg-primary border-2 border-surface justify-center items-center">
                      <Ionicons name="checkmark" size={16} color={Colors.onPrimary} />
                   </View>
-                  <View style={styles.nodeActive}>
+                  <View className="w-9 h-9 rounded-xl bg-surfaceContainerHigh border-2 border-primary justify-center items-center">
                      <Ionicons name="cube" size={16} color={Colors.primary} />
                   </View>
-                  <View style={styles.nodeUpcoming}>
+                  <View className="w-9 h-9 rounded-xl bg-surfaceContainerHigh border-2 border-white/10 justify-center items-center opacity-60">
                      <Ionicons name="gift" size={16} color={Colors.white} />
                   </View>
-                  <View style={styles.nodeUpcoming}>
+                  <View className="w-9 h-9 rounded-xl bg-surfaceContainerHigh border-2 border-white/10 justify-center items-center opacity-60">
                      <Ionicons name="diamond" size={16} color={Colors.white} />
                   </View>
-                  <View style={styles.nodePremium}>
+                  <View className="w-12 h-12 rounded-2xl bg-secondaryContainer border-4 border-surface justify-center items-center">
                      <Ionicons name="ribbon" size={24} color={Colors.onSecondaryContainer} />
                   </View>
                </View>
@@ -205,378 +206,4 @@ export default function MatchCampaignScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  backgroundContainer: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  bgImage: {
-    ...StyleSheet.absoluteFillObject,
-    resizeMode: 'cover',
-  },
-  safeArea: {
-    flex: 1,
-    zIndex: 10,
-  },
-  appBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.md,
-  },
-  appBarContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-  },
-  avatarContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: Colors.primary,
-    overflow: 'hidden',
-  },
-  avatar: {
-    width: '100%',
-    height: '100%',
-  },
-  brandTitle: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: FontSize.xl,
-    color: Colors.white,
-    letterSpacing: -1,
-  },
-  statsPill: {
-    backgroundColor: Colors.surfaceContainerLow,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-  },
-  statsText: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.xs,
-    color: Colors.textSecondary,
-  },
-  // Map Markers
-  marker: {
-    position: 'absolute',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  markerCircleCompleted: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(42,229,0,0.2)',
-    borderWidth: 2,
-    borderColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: Colors.primary,
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
-  },
-  markerLabelBox: {
-    backgroundColor: Colors.surfaceContainer,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-    marginTop: 8,
-  },
-  markerLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: 10,
-    color: Colors.onSurfaceVariant,
-    textTransform: 'uppercase',
-  },
-  pulseRing: {
-    position: 'absolute',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(0,227,253,0.2)',
-    top: -6,
-    left: -6,
-  },
-  markerCircleActive: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(0,227,253,0.2)',
-    borderWidth: 4,
-    borderColor: Colors.secondaryContainer,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: Colors.secondaryContainer,
-    shadowOpacity: 0.6,
-    shadowRadius: 15,
-  },
-  markerCircleLocked: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.surfaceContainerHighest,
-    borderWidth: 2,
-    borderColor: Colors.outline,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  markerLabelLocked: {
-    fontFamily: FontFamily.bold,
-    fontSize: 10,
-    color: Colors.outline,
-    textTransform: 'uppercase',
-  },
-  // Objective Card
-  contentWrapper: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: Spacing.xl,
-  },
-  objectiveCard: {
-    borderRadius: 24,
-    padding: Spacing['xl'],
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    overflow: 'hidden',
-  },
-  objectiveHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: Spacing.xl,
-  },
-  stageLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: 10,
-    color: Colors.secondaryContainer,
-    letterSpacing: 2,
-    marginBottom: 4,
-  },
-  stageTitle: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: 28,
-    color: Colors.white,
-    letterSpacing: -1,
-  },
-  iconBox: {
-    backgroundColor: Colors.surfaceContainerHighest,
-    padding: Spacing.md,
-    borderRadius: BorderRadius.lg,
-  },
-  objectiveDesc: {
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.sm,
-    color: Colors.onSurfaceVariant,
-    lineHeight: 20,
-    marginBottom: Spacing.xl,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-    marginBottom: Spacing.xl,
-  },
-  statBox: {
-    flex: 1,
-    backgroundColor: Colors.surfaceContainerLow,
-    padding: Spacing.md,
-    borderRadius: BorderRadius.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-  },
-  statBoxLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: 10,
-    color: Colors.textMuted,
-    letterSpacing: 1.5,
-    marginBottom: Spacing.sm,
-  },
-  oppText: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.sm,
-    color: Colors.white,
-  },
-  rewardsSection: {
-    marginBottom: Spacing['2xl'],
-  },
-  rewardsRow: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-  },
-  rewardPillPrimary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.primaryContainer,
-    borderWidth: 1,
-    borderColor: 'rgba(42,229,0,0.2)',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.md,
-    gap: 6,
-  },
-  rewardTextPrimary: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.sm,
-    color: Colors.primary,
-  },
-  rewardPillTertiary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.tertiaryContainer,
-    borderWidth: 1,
-    borderColor: 'rgba(189,194,255,0.2)',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.md,
-    gap: 6,
-  },
-  rewardTextTertiary: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.sm,
-    color: Colors.tertiary,
-  },
-  rewardPillSecondary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.surfaceContainerHighest,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.md,
-    gap: 6,
-  },
-  rewardTextSecondary: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.sm,
-    color: Colors.secondaryContainer,
-  },
-  startBtn: {
-    height: 60,
-    borderRadius: BorderRadius.xl,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  startBtnText: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: FontSize.lg,
-    color: Colors.onPrimary,
-    letterSpacing: 2,
-  },
-  // Season Pass Focus
-  seasonPassContainer: {
-    position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 110 : 80,
-    left: 0,
-    right: 0,
-    paddingHorizontal: Spacing.xl,
-    zIndex: 20,
-  },
-  seasonPassBox: {
-    padding: Spacing.lg,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    overflow: 'hidden',
-  },
-  spHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.lg,
-  },
-  spTitle: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: 10,
-    color: Colors.primary,
-    letterSpacing: 2,
-  },
-  spLevelBadge: {
-    backgroundColor: Colors.surfaceContainerHighest,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.full,
-  },
-  spLevelText: {
-    fontFamily: FontFamily.bold,
-    fontSize: 10,
-    color: Colors.onSurfaceVariant,
-  },
-  progressTrackWrapper: {
-    height: 40,
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  progressTrackBg: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: 8,
-    backgroundColor: Colors.surfaceContainerHighest,
-    borderRadius: 4,
-  },
-  progressTrackFill: {
-    position: 'absolute',
-    left: 0,
-    height: 8,
-    backgroundColor: Colors.primary,
-    borderRadius: 4,
-  },
-  nodesContainer: {
-    ...StyleSheet.absoluteFillObject,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  nodeCompleted: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    backgroundColor: Colors.primary,
-    borderWidth: 2,
-    borderColor: Colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  nodeActive: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    backgroundColor: Colors.surfaceContainerHigh,
-    borderWidth: 2,
-    borderColor: Colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  nodeUpcoming: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    backgroundColor: Colors.surfaceContainerHigh,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    opacity: 0.6,
-  },
-  nodePremium: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    backgroundColor: Colors.secondaryContainer,
-    borderWidth: 4,
-    borderColor: Colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-  }
-});
+const styles = {};

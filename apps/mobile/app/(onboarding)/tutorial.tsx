@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   Dimensions,
   Animated,
 } from 'react-native';
@@ -94,81 +93,87 @@ export default function TutorialScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-background">
       {/* Score Bar */}
-      <View style={styles.scoreBar}>
-        <View style={styles.teamInfo}>
-          <Text style={styles.teamName}>YOUR TEAM</Text>
-          <Text style={styles.scoreText}>{score.home}</Text>
+      <View className="flex-row justify-between items-center px-6 pt-16 pb-6 bg-surface border-b border-white/5">
+        <View className="items-center flex-1">
+          <Text className="text-[10px] text-textSecondary font-semibold tracking-wider">YOUR TEAM</Text>
+          <Text className="text-[32px] font-black text-textPrimary">{score.home}</Text>
         </View>
-        <View style={styles.matchClock}>
-          <Text style={styles.clockText}>
+        <View className="items-center flex-1">
+          <Text className="text-2xl font-bold text-success">
             {events.length > 0 ? `${events[events.length - 1].minute}'` : '80\''}
           </Text>
-          <Text style={styles.clockLabel}>TUTORIAL MATCH</Text>
+          <Text className="text-[8px] text-textMuted tracking-wider mt-0.5">TUTORIAL MATCH</Text>
         </View>
-        <View style={styles.teamInfo}>
-          <Text style={styles.teamName}>OPPONENT</Text>
-          <Text style={styles.scoreText}>{score.away}</Text>
+        <View className="items-center flex-1">
+          <Text className="text-[10px] text-textSecondary font-semibold tracking-wider">OPPONENT</Text>
+          <Text className="text-[32px] font-black text-textPrimary">{score.away}</Text>
         </View>
       </View>
 
       {/* Pitch Placeholder */}
-      <View style={styles.pitchArea}>
-        <View style={styles.pitch}>
-          <View style={styles.pitchCenter}>
-            <View style={styles.centerCircle} />
-            <View style={styles.halfwayLine} />
+      <View className="flex-1 p-6 justify-center">
+        <View className="flex-1 bg-emerald-900 rounded-2xl justify-center items-center border-2 border-white/10 max-h-[250px] relative overflow-hidden">
+          <View className="absolute inset-0 justify-center items-center">
+            <View className="w-16 h-16 rounded-full border border-white/20" />
+            <View className="absolute w-full h-px bg-white/20" />
           </View>
-          <Text style={styles.pitchLabel}>🏟️ Live Match View</Text>
-          <Text style={styles.pitchSublabel}>Full 2D radar coming in Phase 2</Text>
+          <Text className="text-xl text-white font-bold z-10">🏟️ Live Match View</Text>
+          <Text className="text-xs text-white/50 mt-2 z-10">Full 2D radar coming in Phase 2</Text>
         </View>
       </View>
 
       {/* Commentary Feed */}
-      <View style={styles.commentaryBox}>
-        <Text style={styles.commentaryTitle}>LIVE COMMENTARY</Text>
+      <View className="bg-surface border-t border-white/5 p-6 max-h-[200px]">
+        <Text className="text-[10px] text-textMuted font-bold tracking-[2px] mb-4">LIVE COMMENTARY</Text>
         {events.slice(-4).map((event, i) => (
-          <View key={i} style={styles.eventRow}>
-            <Text style={styles.eventMinute}>{event.minute}'</Text>
-            <Text style={styles.eventText}>{event.text}</Text>
+          <View key={i} className="flex-row mb-2 items-start">
+            <Text className="text-xs text-success font-bold w-8">{event.minute}'</Text>
+            <Text className="text-sm text-textPrimary flex-1 leading-5">{event.text}</Text>
           </View>
         ))}
       </View>
 
       {/* Touchline Shout Prompt */}
       {showShoutPrompt && (
-        <Animated.View style={[styles.promptOverlay, { transform: [{ scale: pulseAnim }] }]}>
-          <Text style={styles.promptTitle}>📣 TOUCHLINE SHOUT</Text>
-          <Text style={styles.promptText}>Tap to demand more from your players!</Text>
-          <TouchableOpacity style={styles.shoutButton} onPress={handleShout}>
-            <Text style={styles.shoutButtonText}>💪 DEMAND MORE!</Text>
+        <Animated.View 
+          className="absolute bottom-[220px] left-6 right-6 bg-surface rounded-3xl p-8 items-center border-2 border-gold shadow-2xl" 
+          style={{ transform: [{ scale: pulseAnim }] }}
+        >
+          <Text className="text-xl font-black text-gold mb-2">📣 TOUCHLINE SHOUT</Text>
+          <Text className="text-sm text-textSecondary mb-6 text-center">Tap to demand more from your players!</Text>
+          <TouchableOpacity className="bg-primary rounded-xl py-4 px-10" onPress={handleShout}>
+            <Text className="text-white text-lg font-bold">💪 DEMAND MORE!</Text>
           </TouchableOpacity>
         </Animated.View>
       )}
 
       {/* Substitution Prompt */}
       {showSubPrompt && (
-        <Animated.View style={[styles.promptOverlay, { transform: [{ scale: pulseAnim }] }]}>
-          <Text style={styles.promptTitle}>🔄 SUBSTITUTION</Text>
-          <Text style={styles.promptText}>Bring on a fresh player for the final push!</Text>
-          <TouchableOpacity style={styles.subButton} onPress={handleSub}>
-            <Text style={styles.shoutButtonText}>🔄 MAKE SUB</Text>
+        <Animated.View 
+          className="absolute bottom-[220px] left-6 right-6 bg-surface rounded-3xl p-8 items-center border-2 border-gold shadow-2xl" 
+          style={{ transform: [{ scale: pulseAnim }] }}
+        >
+          <Text className="text-xl font-black text-gold mb-2">🔄 SUBSTITUTION</Text>
+          <Text className="text-sm text-textSecondary mb-6 text-center">Bring on a fresh player for the final push!</Text>
+          <TouchableOpacity className="bg-success rounded-xl py-4 px-10" onPress={handleSub}>
+            <Text className="text-white text-lg font-bold">🔄 MAKE SUB</Text>
           </TouchableOpacity>
         </Animated.View>
       )}
 
       {/* Match Complete */}
       {matchComplete && (
-        <View style={styles.resultOverlay}>
-          <Text style={styles.resultEmoji}>🏆</Text>
-          <Text style={styles.resultTitle}>VICTORY!</Text>
-          <Text style={styles.resultScore}>1 - 0</Text>
-          <Text style={styles.resultText}>
+        <View className="absolute inset-0 bg-black/95 justify-center items-center p-8 z-[100]">
+          <Text className="text-[80px] mb-8">🏆</Text>
+          <Text className="text-[40px] font-black text-gold tracking-[4px]">VICTORY!</Text>
+          <Text className="text-5xl font-black text-textPrimary my-6">1 - 0</Text>
+          <Text className="text-base text-textSecondary text-center mb-10">
             Congratulations, Manager! Your squad is ready.
           </Text>
-          <TouchableOpacity style={styles.continueButton} onPress={handleFinish}>
-            <Text style={styles.continueButtonText}>Meet Your Squad →</Text>
+          <TouchableOpacity className="bg-primary rounded-xl py-4 px-12" onPress={handleFinish}>
+            <Text className="text-white text-lg font-bold">Meet Your Squad →</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -176,209 +181,4 @@ export default function TutorialScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  scoreBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing['5xl'],
-    paddingBottom: Spacing.lg,
-    backgroundColor: Colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.surfaceBorder,
-  },
-  teamInfo: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  teamName: {
-    fontSize: FontSize.xs,
-    color: Colors.textSecondary,
-    fontWeight: '600',
-    letterSpacing: 1,
-  },
-  scoreText: {
-    fontSize: FontSize['4xl'],
-    fontWeight: '800',
-    color: Colors.textPrimary,
-  },
-  matchClock: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  clockText: {
-    fontSize: FontSize['2xl'],
-    fontWeight: '700',
-    color: Colors.success,
-  },
-  clockLabel: {
-    fontSize: FontSize.xs,
-    color: Colors.textMuted,
-    letterSpacing: 1,
-    marginTop: 2,
-  },
-  pitchArea: {
-    flex: 1,
-    padding: Spacing.lg,
-    justifyContent: 'center',
-  },
-  pitch: {
-    flex: 1,
-    backgroundColor: Colors.pitchGreen,
-    borderRadius: BorderRadius.lg,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.2)',
-    maxHeight: 250,
-  },
-  pitchCenter: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  centerCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
-  },
-  halfwayLine: {
-    position: 'absolute',
-    width: '100%',
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-  },
-  pitchLabel: {
-    fontSize: FontSize.xl,
-    color: Colors.white,
-    fontWeight: '700',
-    zIndex: 1,
-  },
-  pitchSublabel: {
-    fontSize: FontSize.xs,
-    color: 'rgba(255,255,255,0.5)',
-    marginTop: Spacing.xs,
-    zIndex: 1,
-  },
-  commentaryBox: {
-    backgroundColor: Colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: Colors.surfaceBorder,
-    padding: Spacing.lg,
-    maxHeight: 200,
-  },
-  commentaryTitle: {
-    fontSize: FontSize.xs,
-    color: Colors.textMuted,
-    fontWeight: '700',
-    letterSpacing: 2,
-    marginBottom: Spacing.md,
-  },
-  eventRow: {
-    flexDirection: 'row',
-    marginBottom: Spacing.sm,
-    alignItems: 'flex-start',
-  },
-  eventMinute: {
-    fontSize: FontSize.xs,
-    color: Colors.success,
-    fontWeight: '700',
-    width: 32,
-  },
-  eventText: {
-    fontSize: FontSize.sm,
-    color: Colors.textPrimary,
-    flex: 1,
-    lineHeight: 18,
-  },
-  promptOverlay: {
-    position: 'absolute',
-    bottom: 220,
-    left: Spacing.xl,
-    right: Spacing.xl,
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing['2xl'],
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: Colors.gold,
-  },
-  promptTitle: {
-    fontSize: FontSize.xl,
-    fontWeight: '800',
-    color: Colors.gold,
-    marginBottom: Spacing.sm,
-  },
-  promptText: {
-    fontSize: FontSize.sm,
-    color: Colors.textSecondary,
-    marginBottom: Spacing.lg,
-    textAlign: 'center',
-  },
-  shoutButton: {
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing['3xl'],
-  },
-  subButton: {
-    backgroundColor: Colors.success,
-    borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing['3xl'],
-  },
-  shoutButtonText: {
-    color: Colors.white,
-    fontSize: FontSize.lg,
-    fontWeight: '700',
-  },
-  resultOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(10, 14, 26, 0.95)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: Spacing['3xl'],
-  },
-  resultEmoji: {
-    fontSize: 80,
-    marginBottom: Spacing.xl,
-  },
-  resultTitle: {
-    fontSize: FontSize['4xl'],
-    fontWeight: '800',
-    color: Colors.gold,
-    letterSpacing: 4,
-  },
-  resultScore: {
-    fontSize: FontSize['5xl'],
-    fontWeight: '800',
-    color: Colors.textPrimary,
-    marginVertical: Spacing.lg,
-  },
-  resultText: {
-    fontSize: FontSize.md,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: Spacing['3xl'],
-  },
-  continueButton: {
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.lg,
-    paddingHorizontal: Spacing['4xl'],
-  },
-  continueButtonText: {
-    color: Colors.white,
-    fontSize: FontSize.lg,
-    fontWeight: '700',
-  },
-});
+const styles = {};

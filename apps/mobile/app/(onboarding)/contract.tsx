@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   ScrollView,
   ActivityIndicator,
   Dimensions,
@@ -12,7 +11,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useAppDispatch } from '../../store';
 import { setProfileCompleted, fetchMyClub } from '../../store/slices/authSlice';
-import { Colors, Spacing, BorderRadius, FontSize } from '../../theme';
+import { Colors } from '../../theme';
 import { AvatarStyle, NATIONALITIES } from '@footlaw/shared';
 import api from '../../services/api';
 
@@ -89,15 +88,15 @@ export default function ContractScreen() {
       case 0:
         return (
           <View>
-            <Text style={styles.sectionTitle}>📋 CLAUSE 1: Manager Identity</Text>
-            <Text style={styles.clauseText}>
+            <Text className="text-lg font-bold text-gold mb-4">📋 CLAUSE 1: Manager Identity</Text>
+            <Text className="text-sm text-textSecondary italic leading-5 mb-8">
               The undersigned hereby accepts the position of Head Manager and agrees to the terms set forth in this contract.
             </Text>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>First Name</Text>
+            <View className="mb-6">
+              <Text className="text-[10px] font-semibold text-textSecondary uppercase tracking-wider mb-2">First Name</Text>
               <TextInput
-                style={styles.input}
+                className="bg-slate-800/40 rounded-md p-4 text-base text-textPrimary border border-white/5"
                 placeholder="Enter first name"
                 placeholderTextColor={Colors.textMuted}
                 value={managerFirstName}
@@ -106,10 +105,10 @@ export default function ContractScreen() {
               />
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Last Name</Text>
+            <View className="mb-6">
+              <Text className="text-[10px] font-semibold text-textSecondary uppercase tracking-wider mb-2">Last Name</Text>
               <TextInput
-                style={styles.input}
+                className="bg-slate-800/40 rounded-md p-4 text-base text-textPrimary border border-white/5"
                 placeholder="Enter last name"
                 placeholderTextColor={Colors.textMuted}
                 value={managerLastName}
@@ -123,28 +122,28 @@ export default function ContractScreen() {
       case 1:
         return (
           <View>
-            <Text style={styles.sectionTitle}>🏟️ CLAUSE 2: Club Foundation</Text>
-            <Text style={styles.clauseText}>
+            <Text className="text-lg font-bold text-gold mb-4">🏟️ CLAUSE 2: Club Foundation</Text>
+            <Text className="text-sm text-textSecondary italic leading-5 mb-8">
               The Manager shall establish a football club under the following designation, to compete across all sanctioned tournaments.
             </Text>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Club Name</Text>
+            <View className="mb-6">
+              <Text className="text-[10px] font-semibold text-textSecondary uppercase tracking-wider mb-2">Club Name</Text>
               <TextInput
-                style={styles.input}
+                className="bg-slate-800/40 rounded-md p-4 text-base text-textPrimary border border-white/5"
                 placeholder="e.g. Footlaw United"
                 placeholderTextColor={Colors.textMuted}
                 value={clubName}
                 onChangeText={setClubName}
                 maxLength={20}
               />
-              <Text style={styles.charCount}>{clubName.length}/20</Text>
+              <Text className="text-[10px] text-textMuted text-right mt-1">{clubName.length}/20</Text>
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Abbreviation (3 Letters)</Text>
+            <View className="mb-6">
+              <Text className="text-[10px] font-semibold text-textSecondary uppercase tracking-wider mb-2">Abbreviation (3 Letters)</Text>
               <TextInput
-                style={[styles.input, styles.abbreviationInput]}
+                className="bg-slate-800/40 rounded-md p-4 text-2xl font-black text-textPrimary border border-white/5 text-center tracking-[8px]"
                 placeholder="FLW"
                 placeholderTextColor={Colors.textMuted}
                 value={abbreviation}
@@ -154,30 +153,32 @@ export default function ContractScreen() {
               />
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Nationality</Text>
+            <View className="mb-6">
+              <Text className="text-[10px] font-semibold text-textSecondary uppercase tracking-wider mb-2">Nationality</Text>
               <TouchableOpacity
-                style={styles.input}
+                className="bg-slate-800/40 rounded-md p-4 border border-white/5"
                 onPress={() => setShowNationalityPicker(!showNationalityPicker)}
               >
-                <Text style={nationality ? styles.inputText : styles.placeholderText}>
+                <Text className={`text-base ${nationality ? 'text-textPrimary' : 'text-textMuted'}`}>
                   {nationality || 'Select nationality'}
                 </Text>
               </TouchableOpacity>
               {showNationalityPicker && (
-                <ScrollView style={styles.pickerList} nestedScrollEnabled>
-                  {NATIONALITIES.map((nat) => (
-                    <TouchableOpacity
-                      key={nat}
-                      style={[styles.pickerItem, nationality === nat && styles.pickerItemActive]}
-                      onPress={() => { setNationality(nat); setShowNationalityPicker(false); }}
-                    >
-                      <Text style={[styles.pickerItemText, nationality === nat && styles.pickerItemTextActive]}>
-                        {nat}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
+                <View className="max-h-[180px] bg-slate-800 rounded-md mt-2 border border-white/10 overflow-hidden">
+                  <ScrollView nestedScrollEnabled>
+                    {NATIONALITIES.map((nat) => (
+                      <TouchableOpacity
+                        key={nat}
+                        className={`p-4 border-b border-white/5 ${nationality === nat ? 'bg-primary/20' : ''}`}
+                        onPress={() => { setNationality(nat); setShowNationalityPicker(false); }}
+                      >
+                        <Text className={`text-sm ${nationality === nat ? 'text-primary font-bold' : 'text-textPrimary'}`}>
+                          {nat}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
               )}
             </View>
           </View>
@@ -186,27 +187,21 @@ export default function ContractScreen() {
       case 2:
         return (
           <View>
-            <Text style={styles.sectionTitle}>👔 CLAUSE 3: Manager Style</Text>
-            <Text style={styles.clauseText}>
+            <Text className="text-lg font-bold text-gold mb-4">👔 CLAUSE 3: Manager Style</Text>
+            <Text className="text-sm text-textSecondary italic leading-5 mb-8">
               Select the official attire the Manager shall wear during all match-day proceedings.
             </Text>
 
-            <View style={styles.avatarGrid}>
+            <View className="flex-row gap-4 justify-center">
               {AVATAR_OPTIONS.map((option) => (
                 <TouchableOpacity
                   key={option.style}
-                  style={[
-                    styles.avatarCard,
-                    avatarStyle === option.style && styles.avatarCardActive,
-                  ]}
+                  className={`flex-1 bg-slate-800/40 rounded-xl p-6 items-center border-2 ${avatarStyle === option.style ? 'border-primary bg-primary/10' : 'border-white/5'}`}
                   onPress={() => setAvatarStyle(option.style)}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.avatarEmoji}>{option.emoji}</Text>
-                  <Text style={[
-                    styles.avatarLabel,
-                    avatarStyle === option.style && styles.avatarLabelActive,
-                  ]}>
+                  <Text className="text-[40px] mb-2">{option.emoji}</Text>
+                  <Text className={`text-[10px] font-bold text-center ${avatarStyle === option.style ? 'text-primary' : 'text-textSecondary'}`}>
                     {option.label}
                   </Text>
                 </TouchableOpacity>
@@ -218,30 +213,30 @@ export default function ContractScreen() {
       case 3:
         return (
           <View>
-            <Text style={styles.sectionTitle}>✍️ FINAL CONFIRMATION</Text>
-            <Text style={styles.clauseText}>
+            <Text className="text-lg font-bold text-gold mb-4">✍️ FINAL CONFIRMATION</Text>
+            <Text className="text-sm text-textSecondary italic leading-5 mb-8">
               By signing below, you confirm all details and accept the appointment as Head Manager.
             </Text>
 
-            <View style={styles.summaryCard}>
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Manager</Text>
-                <Text style={styles.summaryValue}>{managerFirstName} {managerLastName}</Text>
+            <View className="bg-slate-800/40 rounded-xl p-6">
+              <View className="flex-row justify-between py-3">
+                <Text className="text-sm text-textSecondary font-medium">Manager</Text>
+                <Text className="text-sm text-textPrimary font-bold">{managerFirstName} {managerLastName}</Text>
               </View>
-              <View style={styles.divider} />
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Club</Text>
-                <Text style={styles.summaryValue}>{clubName} ({abbreviation})</Text>
+              <View className="h-px bg-white/5" />
+              <View className="flex-row justify-between py-3">
+                <Text className="text-sm text-textSecondary font-medium">Club</Text>
+                <Text className="text-sm text-textPrimary font-bold">{clubName} ({abbreviation})</Text>
               </View>
-              <View style={styles.divider} />
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Nationality</Text>
-                <Text style={styles.summaryValue}>{nationality}</Text>
+              <View className="h-px bg-white/5" />
+              <View className="flex-row justify-between py-3">
+                <Text className="text-sm text-textSecondary font-medium">Nationality</Text>
+                <Text className="text-sm text-textPrimary font-bold">{nationality}</Text>
               </View>
-              <View style={styles.divider} />
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Style</Text>
-                <Text style={styles.summaryValue}>{avatarStyle}</Text>
+              <View className="h-px bg-white/5" />
+              <View className="flex-row justify-between py-3">
+                <Text className="text-sm text-textSecondary font-medium">Style</Text>
+                <Text className="text-sm text-textPrimary font-bold">{avatarStyle}</Text>
               </View>
             </View>
           </View>
@@ -251,45 +246,44 @@ export default function ContractScreen() {
 
   return (
     <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.scrollContent}
+      className="flex-1 bg-background"
+      contentContainerStyle={{ padding: 32, paddingTop: 80 }}
       keyboardShouldPersistTaps="handled"
     >
-      {/* Contract Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerBadge}>OFFICIAL DOCUMENT</Text>
-        <Text style={styles.headerTitle}>Manager's Contract</Text>
-        <Text style={styles.headerSubtitle}>FOOTLAW FOOTBALL ASSOCIATION</Text>
+      <View className="items-center mb-10">
+        <Text className="text-xs text-gold font-bold tracking-[3px] mb-2">OFFICIAL DOCUMENT</Text>
+        <Text className="text-[32px] font-black text-textPrimary mb-1">Manager's Contract</Text>
+        <Text className="text-[10px] text-textMuted tracking-[2px]">FOOTLAW FOOTBALL ASSOCIATION</Text>
       </View>
 
-      {/* Progress Dots */}
-      <View style={styles.progressRow}>
+      <View className="flex-row justify-center gap-2 mb-10">
         {[0, 1, 2, 3].map((i) => (
-          <View key={i} style={[styles.dot, i <= step && styles.dotActive]} />
+          <View key={i} className={`h-2.5 rounded-full ${i <= step ? 'bg-primary w-6' : 'bg-slate-700 w-2.5'}`} />
         ))}
       </View>
 
-      {/* Contract Body */}
-      <View style={styles.contractBody}>
+      <View className="bg-surface rounded-3xl p-6 border border-white/5 min-h-[300px]">
         {error ? (
-          <View style={styles.errorBox}>
-            <Text style={styles.errorText}>{error}</Text>
+          <View className="bg-red-500/10 rounded-md p-4 mb-6 border border-red-500/20">
+            <Text className="text-red-500 text-sm text-center">{error}</Text>
           </View>
         ) : null}
 
         {renderStep()}
       </View>
 
-      {/* Navigation Buttons */}
-      <View style={styles.buttonRow}>
+      <View className="flex-row gap-4 mt-8 mb-16">
         {step > 0 && (
-          <TouchableOpacity style={styles.backButton} onPress={() => { setStep(step - 1); setError(''); }}>
-            <Text style={styles.backButtonText}>← Back</Text>
+          <TouchableOpacity 
+            className="flex-1 bg-slate-800/60 rounded-xl p-4 items-center border border-white/5" 
+            onPress={() => { setStep(step - 1); setError(''); }}
+          >
+            <Text className="text-textSecondary text-base font-semibold">← Back</Text>
           </TouchableOpacity>
         )}
 
         <TouchableOpacity
-          style={[styles.nextButton, isSubmitting && styles.nextButtonDisabled]}
+          className={`flex-[2] bg-primary rounded-xl p-4 items-center ${isSubmitting ? 'opacity-60' : ''}`}
           onPress={step === 3 ? handleSubmit : handleNext}
           disabled={isSubmitting}
           activeOpacity={0.8}
@@ -297,7 +291,7 @@ export default function ContractScreen() {
           {isSubmitting ? (
             <ActivityIndicator color={Colors.white} />
           ) : (
-            <Text style={styles.nextButtonText}>
+            <Text className="text-white text-base font-bold">
               {step === 3 ? '✍️  Sign Contract' : 'Continue →'}
             </Text>
           )}
@@ -306,241 +300,3 @@ export default function ContractScreen() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  scrollContent: {
-    padding: Spacing['2xl'],
-    paddingTop: Spacing['5xl'],
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: Spacing['3xl'],
-  },
-  headerBadge: {
-    fontSize: FontSize.xs,
-    color: Colors.gold,
-    letterSpacing: 3,
-    fontWeight: '700',
-    marginBottom: Spacing.sm,
-  },
-  headerTitle: {
-    fontSize: FontSize['3xl'],
-    fontWeight: '800',
-    color: Colors.textPrimary,
-    marginBottom: Spacing.xs,
-  },
-  headerSubtitle: {
-    fontSize: FontSize.xs,
-    color: Colors.textMuted,
-    letterSpacing: 2,
-  },
-  progressRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: Spacing.sm,
-    marginBottom: Spacing['3xl'],
-  },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: Colors.surfaceBorder,
-  },
-  dotActive: {
-    backgroundColor: Colors.primary,
-    width: 24,
-    borderRadius: 5,
-  },
-  contractBody: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing['2xl'],
-    borderWidth: 1,
-    borderColor: Colors.surfaceBorder,
-    minHeight: 300,
-  },
-  sectionTitle: {
-    fontSize: FontSize.lg,
-    fontWeight: '700',
-    color: Colors.gold,
-    marginBottom: Spacing.md,
-  },
-  clauseText: {
-    fontSize: FontSize.sm,
-    color: Colors.textSecondary,
-    lineHeight: 20,
-    marginBottom: Spacing.xl,
-    fontStyle: 'italic',
-  },
-  inputGroup: {
-    marginBottom: Spacing.lg,
-  },
-  label: {
-    fontSize: FontSize.xs,
-    fontWeight: '600',
-    color: Colors.textSecondary,
-    marginBottom: Spacing.sm,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  input: {
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.lg,
-    fontSize: FontSize.md,
-    color: Colors.textPrimary,
-    borderWidth: 1,
-    borderColor: Colors.surfaceBorder,
-  },
-  inputText: {
-    color: Colors.textPrimary,
-    fontSize: FontSize.md,
-  },
-  placeholderText: {
-    color: Colors.textMuted,
-    fontSize: FontSize.md,
-  },
-  abbreviationInput: {
-    textAlign: 'center',
-    fontSize: FontSize['2xl'],
-    fontWeight: '800',
-    letterSpacing: 8,
-  },
-  charCount: {
-    fontSize: FontSize.xs,
-    color: Colors.textMuted,
-    textAlign: 'right',
-    marginTop: Spacing.xs,
-  },
-  pickerList: {
-    maxHeight: 180,
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: BorderRadius.md,
-    marginTop: Spacing.sm,
-    borderWidth: 1,
-    borderColor: Colors.surfaceBorder,
-  },
-  pickerItem: {
-    padding: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.surfaceBorder,
-  },
-  pickerItemActive: {
-    backgroundColor: 'rgba(59, 130, 246, 0.15)',
-  },
-  pickerItemText: {
-    color: Colors.textPrimary,
-    fontSize: FontSize.sm,
-  },
-  pickerItemTextActive: {
-    color: Colors.primary,
-    fontWeight: '600',
-  },
-  avatarGrid: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-    justifyContent: 'center',
-  },
-  avatarCard: {
-    flex: 1,
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.xl,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: Colors.surfaceBorder,
-  },
-  avatarCardActive: {
-    borderColor: Colors.primary,
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-  },
-  avatarEmoji: {
-    fontSize: 40,
-    marginBottom: Spacing.sm,
-  },
-  avatarLabel: {
-    fontSize: FontSize.xs,
-    color: Colors.textSecondary,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  avatarLabelActive: {
-    color: Colors.primary,
-  },
-  summaryCard: {
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.xl,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: Spacing.md,
-  },
-  summaryLabel: {
-    fontSize: FontSize.sm,
-    color: Colors.textSecondary,
-    fontWeight: '500',
-  },
-  summaryValue: {
-    fontSize: FontSize.sm,
-    color: Colors.textPrimary,
-    fontWeight: '700',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: Colors.surfaceBorder,
-  },
-  errorBox: {
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    borderRadius: BorderRadius.sm,
-    padding: Spacing.md,
-    marginBottom: Spacing.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-  },
-  errorText: {
-    color: Colors.danger,
-    fontSize: FontSize.sm,
-    textAlign: 'center',
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-    marginTop: Spacing['2xl'],
-    marginBottom: Spacing['4xl'],
-  },
-  backButton: {
-    flex: 1,
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.lg,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.surfaceBorder,
-  },
-  backButtonText: {
-    color: Colors.textSecondary,
-    fontSize: FontSize.md,
-    fontWeight: '600',
-  },
-  nextButton: {
-    flex: 2,
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.lg,
-    alignItems: 'center',
-  },
-  nextButtonDisabled: {
-    opacity: 0.6,
-  },
-  nextButtonText: {
-    color: Colors.white,
-    fontSize: FontSize.md,
-    fontWeight: '700',
-  },
-});

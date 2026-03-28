@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, Text } from 'react-native';
 import { Canvas } from '@react-three/fiber';
 import { PerspectiveCamera, OrbitControls } from '@react-three/drei';
 import { Colors } from '@/theme/tokens';
@@ -36,7 +36,7 @@ interface Pitch3DProps {
 
 export default function Pitch3D({ players = [] }: Pitch3DProps) {
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-background rounded-xl overflow-hidden">
       <Canvas shadows>
         {/* Camera Setup */}
         <PerspectiveCamera 
@@ -84,11 +84,4 @@ export default function Pitch3D({ players = [] }: Pitch3DProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    borderRadius: 12,
-    overflow: 'hidden', // to keep canvas inside bounds
-  },
-});
+

@@ -79,6 +79,19 @@ export const FORMATIONS: Record<string, FormationPosition[]> = {
     { position: Position.ST, x: 38, y: 78 },
     { position: Position.ST, x: 62, y: 78 },
   ],
+  '4-1-2-3': [
+    { position: Position.GK, x: 50, y: 5 },
+    { position: Position.DL, x: 15, y: 25 },
+    { position: Position.DC, x: 38, y: 22 },
+    { position: Position.DC, x: 62, y: 22 },
+    { position: Position.DR, x: 85, y: 25 },
+    { position: Position.DMC, x: 50, y: 38 },
+    { position: Position.MC, x: 35, y: 52 },
+    { position: Position.MC, x: 65, y: 52 },
+    { position: Position.AML, x: 20, y: 75 },
+    { position: Position.ST, x: 50, y: 80 },
+    { position: Position.AMR, x: 80, y: 75 },
+  ],
 };
 
 // ---- Game Balance ----
@@ -131,6 +144,7 @@ export const PLAYER = {
     Poor: 0.90,
     Fair: 1.00,
     Good: 1.05,
+    Excellent: 1.10,
     Superb: 1.15,
   },
 } as const;

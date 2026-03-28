@@ -2,19 +2,17 @@ import React, { useState, useMemo, useEffect } from 'react';
 import {
   View,
   Text as RNText,
-  StyleSheet,
   ScrollView,
-  ImageBackground,
   TouchableOpacity,
   ActivityIndicator,
   Image,
-  RefreshControl,
-  Platform
+  RefreshControl
 } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { fetchSquad } from '../../store/slices/squadSlice';
-import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '../../theme/tokens';
-import type { IPlayer } from '@footlaw/shared';
+import { Text } from '../../components/Themed';
+import { Colors } from '../../theme/tokens';
+import { IPlayer, Position, Morale } from '@footlaw/shared';
 import Pitch3D from '../../components/3d/Pitch3D';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -44,8 +42,6 @@ export const getPitchPosition = (pos: string, index: number): [number, number, n
   }
 };
 
-const Text = ({ style, ...props }: any) => <RNText style={[styles.defaultText, style]} {...props} />;
-
 function TacticSlider({ label, value, type }: { label: string; value: string; type: 'primary' | 'secondary' | 'error' }) {
   const colorMap: Record<string, string[]> = {
     primary: [Colors.primary, Colors.onPrimaryContainer],
@@ -55,19 +51,20 @@ function TacticSlider({ label, value, type }: { label: string; value: string; ty
   const colors = colorMap[type];
 
   return (
-    <View style={styles.sliderContainer}>
-      <View style={styles.sliderHeader}>
-        <Text style={styles.sliderLabel}>{label}</Text>
-        <View style={[styles.sliderBadge, { backgroundColor: colors[0] + '20' }]}>
-          <Text style={[styles.sliderBadgeText, { color: colors[0] }]}>{value}</Text>
+    <View className="mb-4">
+      <View className="flex-row justify-between items-end mb-2">
+        <Text className="font-bold text-xs text-white tracking-widest">{label}</Text>
+        <View className="px-3 py-1 rounded-full" style={{ backgroundColor: colors[0] + '20' }}>
+          <Text className="font-bold text-xs" style={{ color: colors[0] }}>{value}</Text>
         </View>
       </View>
-      <View style={styles.sliderTrack}>
+      <View className="h-2 bg-surfaceContainer rounded-full overflow-hidden">
         <LinearGradient
           colors={colors as [string, string]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={[styles.sliderFill, { width: type === 'primary' ? '75%' : type === 'secondary' ? '50%' : '90%' }]}
+          className="h-full rounded-full"
+          style={{ width: type === 'primary' ? '75%' : type === 'secondary' ? '50%' : '90%' }}
         />
       </View>
     </View>
@@ -76,24 +73,23 @@ function TacticSlider({ label, value, type }: { label: string; value: string; ty
 
 function BenchPlayer({ player }: { player: IPlayer }) {
   return (
-    <TouchableOpacity style={styles.benchCard}>
-      <View style={styles.benchImgContainer}>
-        {/* Mock profile image generation based on name length for visual variety */}
-        <View style={[styles.benchPlaceholder, { backgroundColor: Colors.surfaceContainerHighest }]}>
+    <TouchableOpacity className="w-[100px] bg-surfaceContainer rounded-xl p-md border border-white/5 mr-md">
+      <View className="relative mb-sm">
+        <View className="h-[60px] rounded-lg justify-center items-center bg-surfaceContainerHighest">
            <Ionicons name="person" size={32} color={Colors.outline} />
         </View>
-        <View style={styles.benchRatingBadge}>
-          <Text style={styles.benchRatingText}>{Math.floor(player.starRating * 10) + 40}</Text>
+        <View className="absolute top-1 right-1 bg-surfaceContainerHighest px-1.5 py-0.5 rounded-full border border-white/10">
+          <Text className="font-bold text-[10px] text-white">{Math.floor(player.starRating * 10) + 40}</Text>
         </View>
       </View>
-      <Text style={styles.benchName} numberOfLines={1}>{player.lastName}</Text>
-      <View style={styles.benchMeta}>
+      <Text className="font-bold text-[10px] text-white text-center uppercase mb-1" numberOfLines={1}>{player.lastName}</Text>
+      <View className="flex-row justify-between items-center">
         <Ionicons 
           name={player.morale === 'Superb' ? "happy" : player.morale === 'Terrible' ? "sad" : "partly-sunny"} 
           size={14} 
           color={Colors.primary} 
         />
-        <Text style={styles.benchPos}>{player.position}</Text>
+        <Text className="font-bold text-[9px] text-outline">{player.position}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -119,6 +115,15 @@ export default function SquadScreen() {
   const startingEleven = useMemo(() => players.slice(0, 11), [players]);
   const benchPlayers = useMemo(() => players.slice(11), [players]);
 
+  const squadStats = useMemo(() => {
+    if (startingEleven.length === 0) return { quality: '0%', morale: 'Low' };
+    const avgQuality = startingEleven.reduce((acc, p) => acc + (p.starRating * 10), 0) / startingEleven.length;
+    return {
+      quality: `${avgQuality.toFixed(1)}%`,
+      morale: 'High', // Simplified for now
+    };
+  }, [startingEleven]);
+
   const pitchPlayers = useMemo(() => {
     return startingEleven.map((p, idx) => ({
       id: p._id,
@@ -132,115 +137,115 @@ export default function SquadScreen() {
 
   if (isLoading && players.length === 0) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+      <View className="flex-1 bg-background justify-center items-center">
         <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <View className="flex-1 bg-background">
+      <SafeAreaView className="flex-1" edges={['top']}>
         {/* Top App Bar */}
-        <BlurView intensity={30} tint="dark" style={styles.appBar}>
-          <View style={styles.appBarContent}>
-            <View style={styles.avatarContainer}>
-              <Image source={{ uri: AVATAR }} style={styles.avatar} />
+        <BlurView intensity={30} tint="dark" className="flex-row items-center justify-between px-xl py-md">
+          <View className="flex-row items-center gap-md">
+            <View className="w-10 h-10 rounded-full border-2 border-primary overflow-hidden">
+              <Image source={{ uri: AVATAR }} className="w-full h-full" />
             </View>
-            <RNText style={styles.brandTitle}>FOOTLAW</RNText>
+            <RNText className="font-headingBlack text-xl text-white tracking-tighter">FOOTLAW</RNText>
           </View>
-          <View style={styles.appBarRight}>
-            <View style={styles.statsPill}>
-              <Text style={styles.statsText}>{tokens} <Ionicons name="diamond" size={10}/> • {balance}</Text>
+          <View className="flex-row items-center">
+            <View className="bg-surfaceContainerLow px-md py-sm rounded-full border border-white/5">
+              <Text className="font-headingBold text-xs text-primary tracking-[2px]">{tokens} <Ionicons name="diamond" size={10}/> • {balance}</Text>
             </View>
           </View>
         </BlurView>
 
         <ScrollView 
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={{ padding: 20 }}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
           }
         >
           {/* Management Tabs */}
-          <View style={styles.tabsContainer}>
+          <View className="flex-row bg-surfaceContainer rounded-xl p-1 mb-xl">
              {['squad', 'formation', 'roles'].map((tab) => (
                 <TouchableOpacity 
                   key={tab} 
-                  style={[styles.tabBtn, activeTab === tab && styles.tabBtnActive]}
+                  className={`flex-1 py-md items-center rounded-lg ${activeTab === tab ? 'bg-primary/10 shadow-lg shadow-primary/15' : ''}`}
                   onPress={() => setActiveTab(tab as any)}
                 >
-                  <Text style={[styles.tabLabel, activeTab === tab && styles.tabLabelActive]}>
-                    {tab.toUpperCase()}
+                  <Text className={`font-headingBold text-sm tracking-wider uppercase ${activeTab === tab ? 'text-primary' : 'text-outline'}`}>
+                    {tab}
                   </Text>
                 </TouchableOpacity>
              ))}
           </View>
 
           {/* Current Squad Stats */}
-          <View style={styles.statsCard}>
-            <View style={styles.statsCardGlow} />
-            <Text style={styles.sectionTitle}>CURRENT SQUAD STATS</Text>
-            <View style={styles.statsGrid}>
-              <View style={[styles.statBox, { borderLeftColor: Colors.primary }]}>
-                <Text style={styles.statBoxLabel}>TOTAL QUALITY</Text>
-                <Text style={styles.statBoxValue}>104.2%</Text>
+          <View className="bg-surfaceContainerHigh rounded-[24px] p-lg border border-white/5 mb-xl overflow-hidden">
+            <View className="absolute -top-[40px] -right-[40px] w-[120px] h-[120px] bg-primary/10 rounded-full" />
+            <Text className="font-headingBold text-[10px] text-secondaryContainer tracking-[2px] mb-lg uppercase">CURRENT SQUAD STATS</Text>
+            <View className="flex-row gap-4">
+              <View className="flex-1 bg-surfaceContainer p-lg rounded-xl border-l-2 border-primary">
+                <Text className="font-bold text-[10px] text-outline tracking-wider mb-1 uppercase">TOTAL QUALITY</Text>
+                <Text className="font-headingBlack text-2xl text-white">{squadStats.quality}</Text>
               </View>
-              <View style={[styles.statBox, { borderLeftColor: Colors.secondaryContainer }]}>
-                <Text style={styles.statBoxLabel}>MORAL AVG.</Text>
-                <Text style={styles.statBoxValue}>High</Text>
+              <View className="flex-1 bg-surfaceContainer p-lg rounded-xl border-l-2 border-secondaryContainer">
+                <Text className="font-bold text-[10px] text-outline tracking-wider mb-1 uppercase">MORALE AVG.</Text>
+                <Text className="font-headingBlack text-2xl text-white">{squadStats.morale}</Text>
               </View>
             </View>
           </View>
 
           {/* Tactical Sliders */}
-          <View style={styles.tacticsCard}>
-            <Text style={styles.sectionTitle}>MATCH TACTICS</Text>
-            <View style={styles.slidersWrapper}>
+          <View className="bg-surfaceContainerHigh rounded-[24px] p-lg border border-white/5 mb-xl">
+            <Text className="font-headingBold text-[10px] text-secondaryContainer tracking-[2px] mb-lg uppercase">MATCH TACTICS</Text>
+            <View className="gap-xl">
               <TacticSlider label="TEAM MENTALITY" value="Attacking" type="primary" />
               <TacticSlider label="PASSING STYLE" value="Mixed" type="secondary" />
               <TacticSlider label="PRESSING INTENSITY" value="High" type="error" />
             </View>
           </View>
 
-          <TouchableOpacity style={styles.submitBtn}>
+          <TouchableOpacity className="mb-xl">
              <LinearGradient
                 colors={['#2ae500', '#1ca600']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={styles.submitBtnGradient}
+                className="h-14 rounded-xl justify-center items-center"
              >
-                <Text style={styles.submitBtnText}>SUBMIT STRATEGY</Text>
+                <Text className="font-headingBlack text-sm text-onPrimary tracking-[3px]">SUBMIT STRATEGY</Text>
              </LinearGradient>
           </TouchableOpacity>
 
           {/* 3D Pitch View */}
-          <View style={styles.pitchContainer}>
+          <View className="aspect-[3/4] rounded-[32px] overflow-hidden border border-white/5 mb-xl">
             <LinearGradient
                colors={[Colors.surfaceContainerLow, Colors.surface]}
-               style={StyleSheet.absoluteFillObject}
+               className="absolute inset-0"
             />
             {/* The actual 3D engine rendered above the gradient background */}
             <Pitch3D players={pitchPlayers} />
             
-            <View style={styles.pitchOverlayBadge}>
-               <View style={styles.pulseDot} />
-               <Text style={styles.pitchOverlayText}>LIVE MATCH LOGIC ACTIVE</Text>
+            <View className="absolute top-lg left-lg flex-row items-center gap-2 bg-black/80 px-md py-2 rounded-full border border-white/10">
+               <View className="w-2 h-2 bg-primary rounded-full" />
+               <Text className="font-headingBlack text-[10px] text-white tracking-[2px]">LIVE MATCH LOGIC ACTIVE</Text>
             </View>
           </View>
 
           {/* Substitutes */}
-          <View style={styles.benchContainer}>
-            <View style={styles.benchHeader}>
-              <Text style={styles.sectionTitle}>SUBSTITUTES</Text>
+          <View className="bg-surfaceContainerHigh rounded-[24px] p-lg border border-white/5">
+            <View className="flex-row justify-between items-center mb-md">
+              <Text className="font-headingBold text-[10px] text-secondaryContainer tracking-[2px] mb-lg uppercase">SUBSTITUTES</Text>
               <TouchableOpacity>
-                <Text style={styles.swapBtnText}>SWAP BENCH</Text>
+                <Text className="font-headingBlack text-[10px] text-white tracking-[2px]">SWAP BENCH</Text>
               </TouchableOpacity>
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.benchScroll}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 16 }}>
                {benchPlayers.map(p => <BenchPlayer key={p._id} player={p} />)}
-               {benchPlayers.length === 0 && <Text style={{ color: Colors.outline }}>No substitutes available.</Text>}
+               {benchPlayers.length === 0 && <Text className="text-outline">No substitutes available.</Text>}
             </ScrollView>
           </View>
 
@@ -250,308 +255,3 @@ export default function SquadScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  defaultText: { fontFamily: FontFamily.regular, color: Colors.textPrimary },
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  appBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.md,
-  },
-  appBarContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-  },
-  avatarContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: Colors.primary,
-    overflow: 'hidden',
-  },
-  avatar: {
-    width: '100%',
-    height: '100%',
-  },
-  brandTitle: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: FontSize.xl,
-    color: Colors.white,
-    letterSpacing: -1,
-  },
-  appBarRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statsPill: {
-    backgroundColor: Colors.surfaceContainerLow,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-  },
-  statsText: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: FontSize.xs,
-    color: Colors.primary,
-    letterSpacing: 2,
-  },
-  scrollContent: {
-    padding: Spacing.xl,
-  },
-  tabsContainer: {
-    flexDirection: 'row',
-    backgroundColor: Colors.surfaceContainer,
-    borderRadius: BorderRadius.xl,
-    padding: 4,
-    marginBottom: Spacing.xl,
-  },
-  tabBtn: {
-    flex: 1,
-    paddingVertical: Spacing.md,
-    alignItems: 'center',
-    borderRadius: BorderRadius.lg,
-  },
-  tabBtnActive: {
-    backgroundColor: 'rgba(42,229,0,0.1)',
-    shadowColor: Colors.primary,
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 3,
-  },
-  tabLabel: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: FontSize.sm,
-    color: Colors.outline,
-  },
-  tabLabelActive: {
-    color: Colors.primary,
-  },
-  statsCard: {
-    backgroundColor: Colors.surfaceContainerHigh,
-    borderRadius: 24,
-    padding: Spacing.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    marginBottom: Spacing.xl,
-    overflow: 'hidden',
-  },
-  statsCardGlow: {
-    position: 'absolute',
-    top: -40,
-    right: -40,
-    width: 120,
-    height: 120,
-    backgroundColor: 'rgba(42,229,0,0.1)',
-    borderRadius: 60,
-  },
-  sectionTitle: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: FontSize.xs,
-    color: Colors.secondaryContainer,
-    letterSpacing: 2,
-    marginBottom: Spacing.lg,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-  },
-  statBox: {
-    flex: 1,
-    backgroundColor: Colors.surfaceContainer,
-    padding: Spacing.lg,
-    borderRadius: BorderRadius.xl,
-    borderLeftWidth: 2,
-  },
-  statBoxLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: 10,
-    color: Colors.outline,
-    letterSpacing: 1,
-    marginBottom: 4,
-  },
-  statBoxValue: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: FontSize['2xl'],
-    color: Colors.white,
-  },
-  tacticsCard: {
-    backgroundColor: Colors.surfaceContainerHigh,
-    borderRadius: 24,
-    padding: Spacing.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    marginBottom: Spacing.xl,
-  },
-  slidersWrapper: {
-    gap: Spacing.xl,
-  },
-  sliderContainer: {},
-  sliderHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    marginBottom: Spacing.sm,
-  },
-  sliderLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.xs,
-    color: Colors.white,
-    letterSpacing: 1,
-  },
-  sliderBadge: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.full,
-  },
-  sliderBadgeText: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.xs,
-  },
-  sliderTrack: {
-    height: 8,
-    backgroundColor: Colors.surfaceContainer,
-    borderRadius: BorderRadius.full,
-    overflow: 'hidden',
-  },
-  sliderFill: {
-    height: '100%',
-    borderRadius: BorderRadius.full,
-  },
-  submitBtn: {
-    marginBottom: Spacing.xl,
-  },
-  submitBtnGradient: {
-    height: 56,
-    borderRadius: BorderRadius.xl,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  submitBtnText: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: FontSize.sm,
-    color: Colors.onPrimary,
-    letterSpacing: 3,
-  },
-  pitchContainer: {
-    aspectRatio: 3 / 4,
-    borderRadius: 32,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    marginBottom: Spacing.xl,
-  },
-  pitchOverlayBadge: {
-    position: 'absolute',
-    top: Spacing.lg,
-    left: Spacing.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: 'rgba(10,14,26,0.8)',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 8,
-    borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  pulseDot: {
-    width: 8,
-    height: 8,
-    backgroundColor: Colors.primary,
-    borderRadius: 4,
-  },
-  pitchOverlayText: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: 10,
-    color: Colors.white,
-    letterSpacing: 2,
-  },
-  benchContainer: {
-    backgroundColor: Colors.surfaceContainerHigh,
-    borderRadius: 24,
-    padding: Spacing.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-  },
-  benchHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-  },
-  swapBtnText: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: 10,
-    color: Colors.white,
-    letterSpacing: 2,
-  },
-  benchScroll: {
-    gap: Spacing.md,
-  },
-  benchCard: {
-    width: 100,
-    backgroundColor: Colors.surfaceContainer,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    marginRight: Spacing.md,
-  },
-  benchImgContainer: {
-    position: 'relative',
-    marginBottom: Spacing.sm,
-  },
-  benchPlaceholder: {
-    height: 60,
-    borderRadius: BorderRadius.lg,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  benchRatingBadge: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    backgroundColor: Colors.surfaceContainerHighest,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  benchRatingText: {
-    fontFamily: FontFamily.bold,
-    fontSize: 10,
-    color: Colors.white,
-  },
-  benchName: {
-    fontFamily: FontFamily.bold,
-    fontSize: 10,
-    color: Colors.white,
-    textAlign: 'center',
-    textTransform: 'uppercase',
-    marginBottom: 4,
-  },
-  benchMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  benchPos: {
-    fontFamily: FontFamily.bold,
-    fontSize: 9,
-    color: Colors.outline,
-  }
-});

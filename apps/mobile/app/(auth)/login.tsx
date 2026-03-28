@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  StyleSheet, 
   TextInput, 
   TouchableOpacity, 
   KeyboardAvoidingView, 
@@ -60,37 +59,37 @@ export default function LoginScreen() {
   return (
     <ImageBackground 
       source={{ uri: STADIUM_BG }} 
-      style={styles.backgroundImage}
+      className="flex-1 bg-background"
       imageStyle={{ opacity: 0.6 }}
     >
       <LinearGradient
         colors={['rgba(15,19,31,0.8)', Colors.background]}
-        style={styles.overlayGradient}
+        className="absolute inset-0"
       />
       
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
+        className="flex-1 justify-center p-2xl"
       >
-        <View style={styles.content}>
+        <View className="w-full items-center">
           
           {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.logoText}>FOOTLAW</Text>
-            <View style={styles.separator} />
-            <Text style={styles.title}>Welcome, Manager</Text>
-            <Text style={styles.subtitle}>Your tactical journey begins here.</Text>
+          <View className="items-center mb-4xl">
+            <Text className="font-headingBlack text-5xl text-white tracking-[-2px] uppercase mb-xs">FOOTLAW</Text>
+            <View className="h-1 w-16 bg-primary rounded-full mb-xl" />
+            <Text className="font-headingBold text-xl text-textPrimary">Welcome, Manager</Text>
+            <Text className="font-regular text-sm text-onSurfaceVariant mt-1">Your tactical journey begins here.</Text>
           </View>
 
           {/* Glass Panel Form */}
-          <BlurView intensity={40} tint="dark" style={styles.glassPanel}>
+          <BlurView intensity={40} tint="dark" className="w-full rounded-[32px] p-3xl overflow-hidden border border-primary/10">
             
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>TACTICAL ID / EMAIL</Text>
-              <View style={styles.inputWrapper}>
-                <Ionicons name="person" size={20} color={Colors.onSurfaceVariant} style={styles.inputIcon} />
+            <View className="mb-xl">
+              <Text className="font-headingBold text-[10px] text-primary tracking-[1.5px] mb-sm ml-1">TACTICAL ID / EMAIL</Text>
+              <View className="relative justify-center">
+                <Ionicons name="person" size={20} color={Colors.onSurfaceVariant} className="absolute left-xl z-10" />
                 <TextInput
-                  style={styles.input}
+                  className="h-14 bg-surfaceContainerLow rounded-xl pl-12 pr-xl color-textPrimary font-regular text-md"
                   placeholder="manager@footlaw.com"
                   placeholderTextColor={Colors.outline}
                   value={email}
@@ -101,12 +100,13 @@ export default function LoginScreen() {
               </View>
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>ENCRYPTION KEY</Text>
-              <View style={styles.inputWrapper}>
-                <Ionicons name="lock-closed" size={20} color={Colors.onSurfaceVariant} style={styles.inputIcon} />
+            <View className="mb-xl">
+              <Text className="font-headingBold text-[10px] text-primary tracking-[1.5px] mb-sm ml-1">ENCRYPTION KEY</Text>
+              <View className="relative justify-center">
+                <Ionicons name="lock-closed" size={20} color={Colors.onSurfaceVariant} className="absolute left-xl z-10" />
                 <TextInput
-                  style={[styles.input, { paddingRight: 50 }]}
+                  className="h-14 bg-surfaceContainerLow rounded-xl pl-12 pr-xl color-textPrimary font-regular text-md"
+                  style={{ paddingRight: 50 }}
                   placeholder="••••••••"
                   placeholderTextColor={Colors.outline}
                   value={password}
@@ -114,8 +114,8 @@ export default function LoginScreen() {
                   secureTextEntry={!showPassword}
                 />
                 <TouchableOpacity 
-                  onPress={() => setShowPassword(!showPassword)}
-                  style={styles.eyeIcon}
+                   onPress={() => setShowPassword(!showPassword)}
+                   className="absolute right-lg p-sm"
                 >
                   <Ionicons 
                     name={showPassword ? 'eye-off' : 'eye'} 
@@ -124,15 +124,15 @@ export default function LoginScreen() {
                   />
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity style={styles.forgotBtn}>
-                <Text style={styles.forgotText}>Forgot password?</Text>
+              <TouchableOpacity className="self-end mt-sm">
+                <Text className="font-semibold text-xs text-secondary">Forgot password?</Text>
               </TouchableOpacity>
             </View>
 
             {error && (
-              <View style={styles.errorContainer}>
+              <View className="flex-row items-center justify-center bg-error/10 p-md rounded-lg mb-md gap-2">
                 <Ionicons name="warning" size={16} color={Colors.error} />
-                <Text style={styles.errorText}>{error}</Text>
+                <Text className="text-error text-xs font-medium">{error}</Text>
               </View>
             )}
 
@@ -140,50 +140,50 @@ export default function LoginScreen() {
               activeOpacity={0.8}
               onPress={handleLogin}
               disabled={isLoading}
-              style={{ marginTop: Spacing.md }}
+              className="mt-md"
             >
               <LinearGradient
                 colors={['#2ae500', '#1ca600']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={styles.loginButton}
+                className="h-[60px] rounded-xl flex-row items-center justify-center"
               >
-                <Text style={styles.loginButtonText}>
+                <Text className="font-headingBlack text-lg text-onPrimary">
                   {isLoading ? 'Decrypting...' : 'Sign In'}
                 </Text>
-                <Ionicons name="football" size={20} color={Colors.onPrimary} style={{ marginLeft: 8 }} />
+                <Ionicons name="football" size={20} color={Colors.onPrimary} className="ml-2" />
               </LinearGradient>
             </TouchableOpacity>
 
             {/* Divider */}
-            <View style={styles.dividerContainer}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>SECURE CONNECT</Text>
-              <View style={styles.dividerLine} />
+            <View className="flex-row items-center my-3xl">
+              <View className="flex-1 h-[1px] bg-white/5" />
+              <Text className="font-bold text-[10px] text-onSurfaceVariant tracking-[2px] px-lg">SECURE CONNECT</Text>
+              <View className="flex-1 h-[1px] bg-white/5" />
             </View>
 
             {/* Social Logins */}
-            <View style={styles.socialGrid}>
+            <View className="flex-row gap-md">
               <TouchableOpacity 
-                style={styles.socialBtn}
+                className="flex-1 h-[50px] bg-white/5 rounded-xl flex-row items-center justify-center gap-sm"
                 onPress={() => promptAsync()}
               >
-                <Image source={{ uri: GOOGLE_ICON }} style={styles.socialLogo} />
-                <Text style={styles.socialText}>GOOGLE</Text>
+                <Image source={{ uri: GOOGLE_ICON }} className="w-5 h-5 opacity-60" style={{ tintColor: Colors.onSurfaceVariant }} />
+                <Text className="font-bold text-xs text-onSurfaceVariant tracking-wider">GOOGLE</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.socialBtn}>
+              <TouchableOpacity className="flex-1 h-[50px] bg-white/5 rounded-xl flex-row items-center justify-center gap-sm">
                 <Ionicons name="logo-apple" size={20} color={Colors.onSurfaceVariant} />
-                <Text style={styles.socialText}>APPLE</Text>
+                <Text className="font-bold text-xs text-onSurfaceVariant tracking-wider">APPLE</Text>
               </TouchableOpacity>
             </View>
 
           </BlurView>
 
           {/* Footer */}
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>New to the dugout? </Text>
+          <View className="flex-row justify-center mt-3xl">
+            <Text className="font-regular text-sm text-onSurfaceVariant">New to the dugout? </Text>
             <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-              <Text style={styles.linkText}>Establish your club</Text>
+              <Text className="font-bold text-sm text-primary">Establish your club</Text>
             </TouchableOpacity>
           </View>
           
@@ -193,187 +193,4 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  overlayGradient: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: Spacing['2xl'],
-  },
-  content: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: Spacing['4xl'],
-  },
-  logoText: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: FontSize['5xl'],
-    color: Colors.white,
-    letterSpacing: -2,
-    textTransform: 'uppercase',
-    marginBottom: Spacing.xs,
-  },
-  separator: {
-    height: 4,
-    width: 64,
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.full,
-    marginBottom: Spacing.xl,
-  },
-  title: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: FontSize.xl,
-    color: Colors.textPrimary,
-  },
-  subtitle: {
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.sm,
-    color: Colors.onSurfaceVariant,
-    marginTop: 4,
-  },
-  glassPanel: {
-    width: '100%',
-    borderRadius: 32,
-    padding: Spacing['3xl'],
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(121, 255, 91, 0.15)', // inner glow approximation
-  },
-  inputGroup: {
-    marginBottom: Spacing.xl,
-  },
-  label: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 10,
-    color: Colors.primary,
-    letterSpacing: 1.5,
-    marginBottom: Spacing.sm,
-    marginLeft: 4,
-  },
-  inputWrapper: {
-    position: 'relative',
-    justifyContent: 'center',
-  },
-  inputIcon: {
-    position: 'absolute',
-    left: Spacing.xl,
-    zIndex: 1,
-  },
-  input: {
-    height: 56,
-    backgroundColor: Colors.surfaceContainerLow,
-    borderRadius: BorderRadius.xl,
-    paddingLeft: 48,
-    paddingRight: Spacing.xl,
-    color: Colors.textPrimary,
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.md,
-  },
-  eyeIcon: {
-    position: 'absolute',
-    right: Spacing.lg,
-    padding: Spacing.sm,
-  },
-  forgotBtn: {
-    alignSelf: 'flex-end',
-    marginTop: Spacing.sm,
-  },
-  forgotText: {
-    fontFamily: FontFamily.semibold,
-    fontSize: FontSize.xs,
-    color: Colors.secondary,
-  },
-  errorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255, 68, 68, 0.1)',
-    padding: Spacing.md,
-    borderRadius: BorderRadius.lg,
-    marginBottom: Spacing.md,
-    gap: 8,
-  },
-  errorText: {
-    color: Colors.error,
-    fontSize: FontSize.xs,
-    fontFamily: FontFamily.medium,
-  },
-  loginButton: {
-    height: 60,
-    borderRadius: BorderRadius.xl,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loginButtonText: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: FontSize.lg,
-    color: Colors.onPrimary,
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: Spacing['3xl'],
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-  },
-  dividerText: {
-    fontFamily: FontFamily.bold,
-    fontSize: 10,
-    color: Colors.onSurfaceVariant,
-    letterSpacing: 2,
-    paddingHorizontal: Spacing.lg,
-  },
-  socialGrid: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-  },
-  socialBtn: {
-    flex: 1,
-    height: 50,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: BorderRadius.xl,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.sm,
-  },
-  socialLogo: {
-    width: 20,
-    height: 20,
-    tintColor: Colors.onSurfaceVariant, // Starts grayed out to match the HTML design
-  },
-  socialText: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.xs,
-    color: Colors.onSurfaceVariant,
-    letterSpacing: 1,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: Spacing['3xl'],
-  },
-  footerText: {
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.sm,
-    color: Colors.onSurfaceVariant,
-  },
-  linkText: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.sm,
-    color: Colors.primary,
-  },
-});
+

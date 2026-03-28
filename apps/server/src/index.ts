@@ -13,6 +13,7 @@ import playerRoutes from './routes/players';
 import tacticRoutes from './routes/tactics';
 import marketRoutes from './routes/market';
 import matchRoutes from './routes/matches';
+import worldtourRoutes from './routes/worldtour';
 
 async function main() {
   // ---- Express setup ----
@@ -34,6 +35,7 @@ async function main() {
   app.use('/api/tactics', tacticRoutes);
   app.use('/api/market', marketRoutes);
   app.use('/api/matches', matchRoutes);
+  app.use('/api/world-tour', worldtourRoutes);
 
   // ---- Redis connection check ----
   const redis = new Redis(config.redisUrl);

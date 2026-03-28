@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Text, View, StyleSheet, Platform } from 'react-native';
+import { Text, View, Platform } from 'react-native';
 import { Colors, FontSize, FontFamily, BorderRadius } from '../../theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
@@ -8,17 +8,17 @@ import { BlurView } from 'expo-blur';
 function TabIcon({ name, focused, label }: { name: React.ComponentProps<typeof Ionicons>['name']; focused: boolean; label: string }) {
   if (focused && label === 'Home') {
     return (
-      <View style={styles.activeTabContainer}>
+      <View className="items-center justify-center bg-primary/10 px-4 py-2 rounded-xl mt-2.5 ios:mt-2.5 android:mt-0">
         <Ionicons name="home" size={24} color={Colors.primary} />
-        <Text style={styles.activeTabLabel}>{label}</Text>
+        <Text className="font-headingBold text-[10px] text-primary mt-1 uppercase tracking-wider">{label}</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.inactiveTabContainer}>
+    <View className="items-center justify-center">
       <Ionicons name={focused ? (name.replace('-outline', '') as any) : name} size={24} color={focused ? Colors.white : Colors.onSurfaceVariant} />
-      <Text style={[styles.inactiveTabLabel, focused && { color: Colors.white }]}>{label}</Text>
+      <Text className={`font-headingBold text-[10px] mt-1 uppercase tracking-wider ${focused ? 'text-white' : 'text-onSurfaceVariant'}`}>{label}</Text>
     </View>
   );
 }
@@ -28,9 +28,19 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: {
+          position: 'absolute',
+          borderTopWidth: 0,
+          elevation: 0,
+          backgroundColor: 'rgba(15,19,31,0.85)',
+          height: Platform.OS === 'ios' ? 95 : 75,
+          borderTopLeftRadius: 32,
+          borderTopRightRadius: 32,
+        },
         tabBarBackground: () => (
-          <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+          <View className="absolute inset-0">
+            <BlurView intensity={30} tint="dark" className="absolute inset-0" />
+          </View>
         ),
         tabBarShowLabel: false, // We render the label inside the custom TabIcon
       }}
@@ -57,60 +67,21 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="match"
+        name="worldtour"
         options={{
-          title: 'Training',
-          tabBarIcon: ({ focused }) => <TabIcon name="barbell-outline" focused={focused} label="Training" />,
+          title: 'Tour',
+          tabBarIcon: ({ focused }) => <TabIcon name="globe-outline" focused={focused} label="Tour" />,
         }}
       />
       <Tabs.Screen
-        name="more"
+        name="campus"
         options={{
-          title: 'Club',
-          tabBarIcon: ({ focused }) => <TabIcon name="shield-outline" focused={focused} label="Club" />,
+          title: 'Campus',
+          tabBarIcon: ({ focused }) => <TabIcon name="business-outline" focused={focused} label="Campus" />,
         }}
       />
     </Tabs>
   );
 }
 
-const styles = StyleSheet.create({
-  tabBar: {
-    position: 'absolute',
-    borderTopWidth: 0,
-    elevation: 0,
-    backgroundColor: 'rgba(15,19,31,0.85)',
-    height: Platform.OS === 'ios' ? 95 : 75,
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-  },
-  activeTabContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(42,229,0,0.1)',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: BorderRadius.xl,
-    marginTop: Platform.OS === 'ios' ? 10 : 0,
-  },
-  activeTabLabel: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 10,
-    color: Colors.primary,
-    marginTop: 4,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  inactiveTabContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  inactiveTabLabel: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 10,
-    color: Colors.onSurfaceVariant,
-    marginTop: 4,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-});
+

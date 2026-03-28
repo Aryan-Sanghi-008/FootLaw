@@ -16,6 +16,7 @@ export enum Position {
   AML = 'AML',
   AMC = 'AMC',
   AMR = 'AMR',
+  DMC = 'DMC',
   ST = 'ST',
 }
 
@@ -24,6 +25,7 @@ export enum Morale {
   POOR = 'Poor',
   FAIR = 'Fair',
   GOOD = 'Good',
+  EXCELLENT = 'Excellent',
   SUPERB = 'Superb',
 }
 

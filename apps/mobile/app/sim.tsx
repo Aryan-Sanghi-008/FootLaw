@@ -1,25 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import {
   View,
-  StyleSheet,
   TouchableOpacity,
   ScrollView,
   Image,
-  Text as RNText,
-  Platform
+  Text as RNText
 } from 'react-native';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { simulateMatch, clearSimulation } from '@/store/slices/matchSlice';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '@/theme/tokens';
+import { Colors } from '@/theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, { 
+  FadeIn, 
+  FadeOut, 
+  ZoomIn 
+} from 'react-native-reanimated';
 
-const AVATAR = "https://lh3.googleusercontent.com/aida-public/AB6AXuA2HoaGWyyHaBvxE3Zt-EtBZh_i_i6c5cvN5m2qFWDHJr7Mx-yCZc-taxe_L_jyjtrBvvRjuyWYx1Gjkr7wnzIWessUov6gW45c5ZD2J76Hx1rGYg1jzEVJJtcPQyWLIWGdc6wJB1e_zhBjD0R7OGBECgCbWk3d3wccoDe5mXg4DRBbmCu-5PK9mggtvlsfqISJjmPa537BV7p-4fYNiLmZegrMhYyTwxpUZ1BvSrWDSfn_yXdM9MkG4I1bPJAStoy1osNrMCpdPl8S";
+const AVATAR = "https://lh3.googleusercontent.com/aida-public/AB6AXuBINf4CTlKW4Kd6m5WCapC3Z4yiR5H-JjYIRKp0caKKK-uc6Qc6oxrEsSYYyLWh0HBoKrZ4ztGlEKskIccXKmbLxlcVHd8YU7E7c12WqEBHEJIjM2kh9aKnNQa2f7t9Gz0Psvvjbf1p6r5WWZ8RjyOL90QvvnLJ-_T7OGkn6FIBEPm8Vols-nEm-yY32XGXCtzZtCYGuNDiiHJRRJ6W-H0XTEEviO6OCB--kmrCohIataqW15bv3zy3SA-VwccCuWhTB1alibLNDUWt";
 
-const Text = ({ style, ...props }: any) => <RNText style={[styles.defaultText, style]} {...props} />;
+function GoalOverlay({ teamName }: { teamName: string }) {
+  return (
+    <Animated.View 
+      entering={ZoomIn.duration(500)} 
+      exiting={FadeOut}
+      className="absolute inset-x-0 top-[40%] z-[100] items-center"
+    >
+       <BlurView intensity={90} tint="dark" className="px-10 py-6 rounded-[32px] border-2 border-primary/50 overflow-hidden items-center">
+          <Text className="font-headingBlack text-[64px] text-primary tracking-tighter leading-[70px]">GOAL!</Text>
+          <Text className="font-headingBold text-xl text-white uppercase tracking-[4px]">{teamName}</Text>
+          <View className="h-1 w-full bg-primary/30 mt-4 rounded-full" />
+       </BlurView>
+    </Animated.View>
+  );
+}
+
+const Text = ({ style, className, ...props }: any) => <RNText className={`font-regular text-textPrimary ${className || ''}`} style={style} {...props} />;
 
 export default function LiveMatchSimulationScreen() {
   const router = useRouter();
@@ -32,8 +51,8 @@ export default function LiveMatchSimulationScreen() {
 
   const [currentMinute, setCurrentMinute] = useState(0);
   const [displayedEvents, setDisplayedEvents] = useState<any[]>([]);
+  const [showGoalOverlay, setShowGoalOverlay] = useState<string | null>(null);
 
-  // Start simulation on mount
   useEffect(() => {
     if (matchId) {
       dispatch(simulateMatch(matchId as string));
@@ -43,7 +62,6 @@ export default function LiveMatchSimulationScreen() {
     };
   }, [matchId]);
 
-  // Ticker Logic to playback events
   useEffect(() => {
     if (!activeSimulation || isSimulating) return;
 
@@ -55,23 +73,30 @@ export default function LiveMatchSimulationScreen() {
         }
         
         const nextMin = prev + 1;
-        // Check for events in this minute
         const newEvents = activeSimulation.events.filter(e => e.minute === nextMin);
+        
         if (newEvents.length > 0) {
+          const goalEvent = newEvents.find(e => e.type === 'goal');
+          if (goalEvent) {
+             const teamName = goalEvent.clubId === activeSimulation.homeClubId 
+               ? (currentClub?.name || 'Home') 
+               : 'Opponent';
+             setShowGoalOverlay(teamName);
+             setTimeout(() => setShowGoalOverlay(null), 3500);
+          }
           setDisplayedEvents(prevEvents => [...newEvents, ...prevEvents].slice(0, 5));
         }
         
         return nextMin;
       });
-    }, 1000); // Speed up playback: 1s = 1 minute
+    }, 1000);
 
     return () => clearInterval(interval);
-  }, [activeSimulation, isSimulating]);
+  }, [activeSimulation, isSimulating, currentClub]);
 
   const homeTeamName = activeSimulation?.homeClubId === currentClub?.id ? currentClub?.name : 'Opponent';
   const awayTeamName = activeSimulation?.awayClubId === currentClub?.id ? currentClub?.name : 'Opponent';
   
-  // Scoring logic during playback
   const homeScore = activeSimulation?.events
     .filter(e => e.minute <= currentMinute && e.type === 'goal' && e.clubId === activeSimulation.homeClubId)
     .length || 0;
@@ -83,152 +108,147 @@ export default function LiveMatchSimulationScreen() {
   const latestEvent = displayedEvents[0];
 
   return (
-    <View style={styles.container}>
-      {/* Stadium Background Layer */}
-      <View style={styles.bgContainer}>
+    <View className="flex-1 bg-background">
+      <View className="absolute inset-0 z-0 opacity-80">
          <LinearGradient
             colors={['#1b3a1b', '#0f131f']}
             start={{ x: 0.5, y: 0.2 }}
             end={{ x: 0.5, y: 1 }}
-            style={StyleSheet.absoluteFill}
+            className="absolute inset-0"
          />
       </View>
 
-      {/* Floating Particles Simulation */}
-      <View style={styles.particlesLayer} pointerEvents="none">
-         <View style={[styles.particle, { top: '25%', left: '25%', backgroundColor: Colors.primary, opacity: 0.2 }]} />
-         <View style={[styles.particle, { bottom: '33%', right: '25%', backgroundColor: Colors.secondaryContainer, width: 8, height: 8, opacity: 0.1 }]} />
-         <View style={[styles.particle, { top: '50%', right: '50%', backgroundColor: Colors.white, opacity: 0.2 }]} />
+      <View className="absolute inset-0 z-10" pointerEvents="none">
+         <View className="absolute w-1.5 h-1.5 rounded-full opacity-20" style={{ top: '25%', left: '25%', backgroundColor: Colors.primary }} />
+         <View className="absolute w-2 h-2 rounded-full opacity-10" style={{ bottom: '33%', right: '25%', backgroundColor: Colors.secondaryContainer }} />
+         <View className="absolute w-1.5 h-1.5 rounded-full opacity-20" style={{ top: '50%', right: '50%', backgroundColor: Colors.white }} />
       </View>
 
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        {/* Top App Bar : Scoreboard */}
-        <BlurView intensity={40} tint="dark" style={styles.appBar}>
-          {/* Back btn / Profile */}
-          <TouchableOpacity onPress={() => router.back()} style={styles.appBarLeft}>
+      <SafeAreaView className="flex-1 z-20 justify-between" edges={['top', 'bottom']}>
+        <BlurView intensity={40} tint="dark" className="flex-row items-center justify-between px-xl py-md border-b border-white/5">
+          <TouchableOpacity onPress={() => router.back()} className="p-sm">
             <Ionicons name="arrow-back" size={24} color={Colors.white} />
           </TouchableOpacity>
 
-          {/* Center Scoreboard */}
-          <View style={styles.scoreboardCenter}>
-            <View style={{ alignItems: 'flex-end' }}>
-              <Text style={styles.teamName}>{homeTeamName}</Text>
-              <Text style={styles.teamScore}>{homeScore}</Text>
+          <View className="flex-row items-center gap-xl absolute left-1/2 -translate-x-[120px]">
+            <View className="items-end">
+              <Text className="font-headingBold text-[10px] text-outline uppercase tracking-[2px]">{homeTeamName}</Text>
+              <Text className="font-headingBlack text-[32px] text-white leading-10">{homeScore}</Text>
             </View>
             
-            <View style={styles.timeBox}>
-              <Text style={styles.timeMinute}>{currentMinute}'</Text>
-              <Text style={styles.timeLabel}>{currentMinute === 90 ? 'FULL TIME' : 'LIVE MATCH'}</Text>
+            <View className="items-center bg-surfaceContainerHighest px-md py-1 rounded-full border border-white/5">
+              <Text className="font-headingBlack text-xl text-primary tracking-tighter">{currentMinute}'</Text>
+              <Text className="font-bold text-[8px] text-outline uppercase tracking-wider">{currentMinute === 90 ? 'FULL TIME' : 'LIVE MATCH'}</Text>
             </View>
  
-            <View style={{ alignItems: 'flex-start' }}>
-              <Text style={styles.teamName}>{awayTeamName}</Text>
-              <Text style={styles.teamScore}>{awayScore}</Text>
+            <View className="items-start">
+              <Text className="font-headingBold text-[10px] text-outline uppercase tracking-[2px]">{awayTeamName}</Text>
+              <Text className="font-headingBlack text-[32px] text-white leading-10">{awayScore}</Text>
             </View>
           </View>
 
-          {/* Settings */}
-          <TouchableOpacity style={styles.appBarRight}>
+          <TouchableOpacity className="p-sm">
             <Ionicons name="settings-outline" size={24} color={Colors.outline} />
           </TouchableOpacity>
         </BlurView>
-
         {/* Main tactical View */}
-        <View style={styles.mainTacticalWrapper}>
-          <View style={styles.pitchBoard}>
-             <View style={styles.pitchLines}>
+        <View className="flex-1 justify-center items-center relative">
+          {showGoalOverlay && <GoalOverlay teamName={showGoalOverlay} />}
+          
+          <View className="w-[85%] max-w-[400px] aspect-[3/4] bg-surfaceContainer rounded-[40px] border border-white/10 relative overflow-hidden shadow-2xl shadow-black">
+             <View className="absolute inset-4 border-2 border-white/10 rounded-[24px]">
                 {/* Center Circle */}
-                <View style={styles.centerCircle} />
-                <View style={styles.halfwayLine} />
+                <View className="absolute top-1/2 left-1/2 w-[100px] h-[100px] rounded-full border-2 border-white/10 -translate-x-[50px] -translate-y-[50px]" />
+                <View className="absolute top-1/2 left-0 right-0 h-0.5 bg-white/10 -translate-y-px" />
                 {/* Penalty Areas */}
-                <View style={styles.penaltyAreaTop} />
-                <View style={styles.penaltyAreaBottom} />
+                <View className="absolute top-0 left-1/2 w-[150px] h-[60px] border-2 border-t-0 border-white/10 -translate-x-[75px]" />
+                <View className="absolute bottom-0 left-1/2 w-[150px] h-[60px] border-2 border-b-0 border-white/10 -translate-x-[75px]" />
              </View>
 
              {/* Simulated Home Team Dots */}
-             <View style={[styles.playerDot, styles.homeDot, { top: '25%', left: '25%' }]}><Text style={styles.dotText}>9</Text></View>
-             <View style={[styles.playerDot, styles.homeDot, { top: '33%', left: '50%' }]}><Text style={styles.dotText}>10</Text></View>
-             <View style={[styles.playerDot, styles.homeDot, { top: '25%', right: '25%' }]}><Text style={styles.dotText}>7</Text></View>
+             <Animated.View entering={FadeIn.delay(200)} className="absolute w-4 h-4 rounded-full items-center justify-center bg-primary shadow-lg shadow-primary" style={{ top: '25%', left: '25%' }}><Text className="font-headingBlack text-[8px] text-surface">9</Text></Animated.View>
+             <Animated.View entering={FadeIn.delay(300)} className="absolute w-4 h-4 rounded-full items-center justify-center bg-primary shadow-lg shadow-primary" style={{ top: '33%', left: '50%' }}><Text className="font-headingBlack text-[8px] text-surface">10</Text></Animated.View>
+             <Animated.View entering={FadeIn.delay(400)} className="absolute w-4 h-4 rounded-full items-center justify-center bg-primary shadow-lg shadow-primary" style={{ top: '25%', right: '25%' }}><Text className="font-headingBlack text-[8px] text-surface">7</Text></Animated.View>
              
              {/* Simulated Away Team Dots */}
-             <View style={[styles.playerDot, styles.awayDot, { bottom: '25%', left: '33%' }]}><Text style={styles.dotText}>4</Text></View>
-             <View style={[styles.playerDot, styles.awayDot, { bottom: '33%', right: '50%' }]}><Text style={styles.dotText}>5</Text></View>
+             <Animated.View entering={FadeIn.delay(500)} className="absolute w-4 h-4 rounded-full items-center justify-center bg-secondaryContainer shadow-lg shadow-secondaryContainer" style={{ bottom: '25%', left: '33%' }}><Text className="font-headingBlack text-[8px] text-surface">4</Text></Animated.View>
+             <Animated.View entering={FadeIn.delay(600)} className="absolute w-4 h-4 rounded-full items-center justify-center bg-secondaryContainer shadow-lg shadow-secondaryContainer" style={{ bottom: '33%', right: '50%' }}><Text className="font-headingBlack text-[8px] text-surface">5</Text></Animated.View>
              
              {/* The Ball */}
-             <View style={styles.ball} />
+             <View className="absolute top-[42%] left-[48%] w-2.5 h-2.5 bg-white rounded-full shadow-lg shadow-white" />
           </View>
 
           {/* Quick Widgets */}
-          <View style={styles.floatingSubs}>
-             <TouchableOpacity style={styles.widgetBtn}>
+          <View className="absolute left-lg top-1/2 -translate-y-[60px] gap-md">
+             <TouchableOpacity className="bg-slate-800/60 p-md rounded-xl items-center border border-white/10">
                 <Ionicons name="swap-horizontal" size={28} color={Colors.primary} />
-                <Text style={styles.widgetLabel}>SUBS</Text>
+                <Text className="font-headingBlack text-[7px] text-outline mt-1">SUBS</Text>
              </TouchableOpacity>
-             <TouchableOpacity style={styles.widgetBtn}>
+             <TouchableOpacity className="bg-slate-800/60 p-md rounded-xl items-center border border-white/10">
                 <Ionicons name="options" size={28} color={Colors.secondaryContainer} />
-                <Text style={styles.widgetLabel}>TACTICS</Text>
+                <Text className="font-headingBlack text-[7px] text-outline mt-1">TACTICS</Text>
              </TouchableOpacity>
           </View>
 
-          <View style={styles.floatingMentality}>
-             <View style={styles.mentalityBox}>
-                <Text style={[styles.widgetLabel, { transform: [{ rotate: '-90deg' }], width: 60 }]}>MENTALITY</Text>
-                <View style={styles.mentalityTrack}>
+          <View className="absolute right-lg top-1/2 -translate-y-[70px]">
+             <View className="bg-slate-800/60 py-lg px-2 rounded-xl items-center border border-white/10 gap-md">
+                <Text className="font-headingBlack text-[7px] text-outline mt-1 -rotate-90 w-[60px]">MENTALITY</Text>
+                <View className="w-1.5 h-20 bg-surfaceContainerLowest rounded-full overflow-hidden relative">
                    <LinearGradient 
                       colors={['#f97316', Colors.primary]}
-                      style={{ position: 'absolute', bottom: 0, width: '100%', height: '70%' }}
+                      className="absolute bottom-0 w-full h-[70%]"
                    />
                 </View>
-                <Text style={[styles.widgetLabel, { color: Colors.primary }]}>ATTACK</Text>
+                <Text className="font-headingBlack text-[7px] text-primary mt-1">ATTACK</Text>
              </View>
           </View>
         </View>
 
         {/* Commentary & Controls Section */}
-        <View style={styles.bottomControls}>
-          <BlurView intensity={40} tint="dark" style={styles.commentaryPanel}>
+        <View className="px-xl pb-xl gap-xl">
+          <BlurView intensity={40} tint="dark" className="rounded-[24px] p-lg border border-white/10 relative">
              {/* Live indicator */}
-             <View style={styles.liveIndicator}>
-                <View style={styles.liveDot} />
-                <Text style={styles.liveText}>LIVE FEED</Text>
+             <View className="absolute -top-2.5 left-xl bg-error flex-row items-center gap-1 px-md py-0.5 rounded-full">
+                <View className="w-1.5 h-1.5 bg-white rounded-full" />
+                <Text className="font-headingBlack text-[8px] text-white tracking-wider">LIVE FEED</Text>
              </View>
              
              {latestEvent ? (
-               <View style={styles.commentRow}>
-                  <Text style={styles.commentTime}>{latestEvent.minute}'</Text>
-                  <View style={styles.commentBody}>
-                     <Text style={styles.commentMain}>
-                        {latestEvent.type === 'goal' && <Text style={{ color: Colors.primary }}>GOAL! </Text>}
+               <View className="flex-row gap-md items-start mt-2">
+                  <Text className="font-headingBlack text-sm text-primary">{latestEvent.minute}'</Text>
+                  <View className="flex-1">
+                     <Text className="font-bold text-sm text-white leading-5">
+                        {latestEvent.type === 'goal' && <Text className="text-primary">GOAL! </Text>}
                         {latestEvent.text}
                      </Text>
                   </View>
                </View>
              ) : (
-               <View style={styles.commentRow}>
-                  <Text style={styles.commentTime}>{currentMinute}'</Text>
-                  <View style={styles.commentBody}>
-                     <Text style={styles.commentMain}>Match is underway. Both teams looking for an opening.</Text>
+               <View className="flex-row gap-md items-start mt-2">
+                  <Text className="font-headingBlack text-sm text-primary">{currentMinute}'</Text>
+                  <View className="flex-1">
+                     <Text className="font-bold text-sm text-white leading-5">Match is underway. Both teams looking for an opening.</Text>
                   </View>
                </View>
              )}
           </BlurView>
 
-          <View style={styles.actionButtonsRow}>
-             <TouchableOpacity style={{ flex: 1 }} activeOpacity={0.8}>
+          <View className="flex-row gap-md">
+             <TouchableOpacity className="flex-1" activeOpacity={0.8}>
                 <LinearGradient
                    colors={['#2ae500', '#1ca600']}
                    start={{ x: 0, y: 0 }}
                    end={{ x: 1, y: 1 }}
-                   style={styles.boostBtn}
+                   className="flex-row items-center justify-center gap-2 py-lg rounded-xl"
                 >
                    <Ionicons name="flash" size={20} color={Colors.onPrimary} />
-                   <Text style={styles.boostBtnText}>BOOST MORALE</Text>
+                   <Text className="font-headingBlack text-sm text-onPrimary tracking-widest">BOOST MORALE</Text>
                 </LinearGradient>
              </TouchableOpacity>
 
-             <TouchableOpacity style={styles.statsBtn} activeOpacity={0.8}>
+             <TouchableOpacity className="flex-1 flex-row items-center justify-center gap-2 bg-surfaceContainerHighest py-lg rounded-xl border border-primary/20" activeOpacity={0.8}>
                 <Ionicons name="analytics" size={20} color={Colors.white} />
-                <Text style={styles.statsBtnText}>LIVE STATS</Text>
+                <Text className="font-headingBlack text-sm text-white tracking-widest">LIVE STATS</Text>
              </TouchableOpacity>
           </View>
         </View>
@@ -237,347 +257,4 @@ export default function LiveMatchSimulationScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  defaultText: { fontFamily: FontFamily.regular, color: Colors.textPrimary },
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  bgContainer: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 0,
-    opacity: 0.8,
-  },
-  particlesLayer: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 1,
-  },
-  particle: {
-    position: 'absolute',
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  safeArea: {
-    flex: 1,
-    zIndex: 2,
-    justifyContent: 'space-between',
-  },
-  // Top App Bar
-  appBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
-  },
-  appBarLeft: {
-    padding: Spacing.sm,
-  },
-  scoreboardCenter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.xl,
-    position: 'absolute',
-    left: '50%',
-    transform: [{ translateX: -120 }],
-  },
-  teamName: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 10,
-    color: Colors.outline,
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-  },
-  teamScore: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: 32,
-    color: Colors.white,
-    lineHeight: 40,
-  },
-  timeBox: {
-    alignItems: 'center',
-    backgroundColor: Colors.surfaceContainerHighest,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.xl,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-  },
-  timeMinute: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: FontSize.xl,
-    color: Colors.primary,
-    letterSpacing: -1,
-  },
-  timeLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: 8,
-    color: Colors.outline,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  appBarRight: {
-    padding: Spacing.sm,
-  },
-  // Tactical Board
-  mainTacticalWrapper: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  pitchBoard: {
-    width: '85%',
-    maxWidth: 400,
-    aspectRatio: 3 / 4,
-    backgroundColor: Colors.surfaceContainer,
-    borderRadius: 40,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    position: 'relative',
-    overflow: 'hidden',
-    shadowColor: Colors.black,
-    shadowOpacity: 0.5,
-    shadowRadius: 30,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 20,
-  },
-  pitchLines: {
-    ...StyleSheet.absoluteFillObject,
-    margin: 16,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 24,
-  },
-  centerCircle: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.1)',
-    transform: [{ translateX: -50 }, { translateY: -50 }],
-  },
-  halfwayLine: {
-    position: 'absolute',
-    top: '50%',
-    left: 0,
-    right: 0,
-    height: 2,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    transform: [{ translateY: -1 }],
-  },
-  penaltyAreaTop: {
-    position: 'absolute',
-    top: 0,
-    left: '50%',
-    width: 150,
-    height: 60,
-    borderWidth: 2,
-    borderTopWidth: 0,
-    borderColor: 'rgba(255,255,255,0.1)',
-    transform: [{ translateX: -75 }],
-  },
-  penaltyAreaBottom: {
-    position: 'absolute',
-    bottom: 0,
-    left: '50%',
-    width: 150,
-    height: 60,
-    borderWidth: 2,
-    borderBottomWidth: 0,
-    borderColor: 'rgba(255,255,255,0.1)',
-    transform: [{ translateX: -75 }],
-  },
-  playerDot: {
-    position: 'absolute',
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  homeDot: {
-    backgroundColor: Colors.primary,
-    shadowColor: Colors.primary,
-    shadowOpacity: 0.8,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 0 },
-  },
-  awayDot: {
-    backgroundColor: Colors.secondaryContainer,
-    shadowColor: Colors.secondaryContainer,
-    shadowOpacity: 0.8,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 0 },
-  },
-  dotText: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: 8,
-    color: Colors.surface,
-  },
-  ball: {
-    position: 'absolute',
-    top: '42%',
-    left: '48%',
-    width: 10,
-    height: 10,
-    backgroundColor: Colors.white,
-    borderRadius: 5,
-    shadowColor: Colors.white,
-    shadowOpacity: 1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 0 },
-  },
-  // Widgets
-  floatingSubs: {
-    position: 'absolute',
-    left: Spacing.lg,
-    top: '50%',
-    transform: [{ translateY: -60 }],
-    gap: Spacing.md,
-  },
-  widgetBtn: {
-    backgroundColor: 'rgba(49,52,66,0.6)',
-    padding: Spacing.md,
-    borderRadius: BorderRadius.xl,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  widgetLabel: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: 7,
-    color: Colors.outline,
-    marginTop: 4,
-  },
-  floatingMentality: {
-    position: 'absolute',
-    right: Spacing.lg,
-    top: '50%',
-    transform: [{ translateY: -70 }],
-  },
-  mentalityBox: {
-    backgroundColor: 'rgba(49,52,66,0.6)',
-    paddingVertical: Spacing.lg,
-    paddingHorizontal: Spacing.sm,
-    borderRadius: BorderRadius.xl,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    gap: Spacing.md,
-  },
-  mentalityTrack: {
-    width: 6,
-    height: 80,
-    backgroundColor: Colors.surfaceContainerLowest,
-    borderRadius: 3,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  // Bottom Controls
-  bottomControls: {
-    paddingHorizontal: Spacing.xl,
-    paddingBottom: Spacing.xl,
-    gap: Spacing.xl,
-  },
-  commentaryPanel: {
-    borderRadius: 24,
-    padding: Spacing.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    position: 'relative',
-  },
-  liveIndicator: {
-    position: 'absolute',
-    top: -10,
-    left: Spacing.xl,
-    backgroundColor: Colors.error,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.full,
-  },
-  liveDot: {
-    width: 6,
-    height: 6,
-    backgroundColor: Colors.white,
-    borderRadius: 3,
-  },
-  liveText: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: 8,
-    color: Colors.white,
-    letterSpacing: 1,
-  },
-  commentRow: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-    alignItems: 'flex-start',
-    marginTop: 8,
-  },
-  commentTime: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: FontSize.sm,
-    color: Colors.primary,
-  },
-  commentBody: {
-    flex: 1,
-  },
-  commentMain: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.sm,
-    color: Colors.white,
-    lineHeight: 20,
-  },
-  commentSub: {
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.xs,
-    color: Colors.outline,
-    fontStyle: 'italic',
-    marginTop: 4,
-  },
-  actionButtonsRow: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-  },
-  boostBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: Spacing.lg,
-    borderRadius: BorderRadius.xl,
-  },
-  boostBtnText: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: FontSize.sm,
-    color: Colors.onPrimary,
-    letterSpacing: 2,
-  },
-  statsBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: Colors.surfaceContainerHighest,
-    paddingVertical: Spacing.lg,
-    borderRadius: BorderRadius.xl,
-    borderWidth: 1,
-    borderColor: 'rgba(42,229,0,0.2)',
-  },
-  statsBtnText: {
-    fontFamily: FontFamily.headingBlack,
-    fontSize: FontSize.sm,
-    color: Colors.white,
-    letterSpacing: 2,
-  }
-});
+

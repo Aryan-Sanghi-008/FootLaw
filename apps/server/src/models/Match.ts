@@ -16,6 +16,7 @@ export interface IMatchDocument extends Document {
   awayScore: number;
   status: 'scheduled' | 'live' | 'completed';
   competition: string; // e.g. 'World Tour', 'League'
+  matchday: number;
   date: Date;
   events: IMatchEvent[];
   stats: {
@@ -54,6 +55,7 @@ const MatchSchema = new Schema<IMatchDocument>(
     awayScore: { type: Number, default: 0 },
     status: { type: String, enum: ['scheduled', 'live', 'completed'], default: 'scheduled' },
     competition: { type: String, required: true },
+    matchday: { type: Number, default: 1 },
     date: { type: Date, required: true },
     events: [MatchEventSchema],
     stats: {

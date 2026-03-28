@@ -44,20 +44,38 @@ router.post('/create', authMiddleware, async (req: AuthRequest, res: Response) =
       }
     }
 
-    // Create profile
-    const profile = await Profile.create({
-      userId,
-      firstName: managerFirstName.trim(),
-      lastName: managerLastName.trim(),
-      nationality,
-      avatarStyle: avatarStyle || AvatarStyle.TRACKSUIT,
-    });
+    // Find or Create profile
+    let profile = await Profile.findOne({ userId });
+    
+    if (profile) {
+      // Update existing profile (from registration)
+      profile.firstName = managerFirstName.trim();
+      profile.lastName = managerLastName.trim();
+      profile.nationality = nationality;
+      profile.avatarStyle = avatarStyle || AvatarStyle.TRACKSUIT;
+      await profile.save();
+    } else {
+      // Create new profile if it doesn't exist (e.g. legacy users)
+      profile = await Profile.create({
+        userId,
+        firstName: managerFirstName.trim(),
+        lastName: managerLastName.trim(),
+        nationality,
+        avatarStyle: avatarStyle || AvatarStyle.TRACKSUIT,
+      });
+    }
 
     // Create club
     const club = await Club.create({
       profileId: profile._id,
       name: clubName.trim(),
       abbreviation: abbreviation.toUpperCase(),
+      worldTourProgress: [
+        { regionId: 'eu', completedMatches: 0 },
+        { regionId: 'na', completedMatches: 0 },
+        { regionId: 'sa', completedMatches: 0 },
+        { regionId: 'as', completedMatches: 0 },
+      ],
     });
 
     // Generate starter squad
