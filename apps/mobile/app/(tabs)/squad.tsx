@@ -12,7 +12,28 @@ import { useAppDispatch, useAppSelector } from '../../store';
 import { fetchSquad } from '../../store/slices/squadSlice';
 import { Colors, Spacing, BorderRadius, FontSize } from '../../theme';
 import type { IPlayer } from '@footlaw/shared';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import Pitch3D from '../../components/3d/Pitch3D';
+
+// Helper to map traditional positions to 3D coordinates on the pitch
+// Pitch is roughly [-6, 6] on X and [-10, 10] on Z
+const getPitchPosition = (pos: string, index: number): [number, number, number] => {
+  switch(pos) {
+    case 'GK': return [0, 0, -8];
+    case 'DL': return [-4, 0, -5];
+    case 'DC': return [index % 2 === 0 ? -1.5 : 1.5, 0, -5];
+    case 'DR': return [4, 0, -5];
+    case 'DMC': return [0, 0, -2];
+    case 'ML': return [-4, 0, 1];
+    case 'MC': return [index % 2 === 0 ? -1.5 : 1.5, 0, 1];
+    case 'MR': return [4, 0, 1];
+    case 'AML': return [-3, 0, 4];
+    case 'AMC': return [0, 0, 4];
+    case 'AMR': return [3, 0, 4];
+    case 'ST': return [index % 2 === 0 ? -1.5 : 1.5, 0, 7];
+    default: return [0, 0, 0];
+  }
+};
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -175,6 +196,15 @@ export default function SquadScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<IPlayer | null>(null);
 
+  const pitchPlayers = useMemo(() => {
+    // For MVP, just map the first 11 players onto the pitch
+    return players.slice(0, 11).map((p, idx) => ({
+      id: p._id,
+      name: p.lastName,
+      position: getPitchPosition(p.position, idx),
+    }));
+  }, [players]);
+
   useEffect(() => {
     dispatch(fetchSquad());
   }, [dispatch]);
@@ -202,6 +232,11 @@ export default function SquadScreen() {
         <View style={styles.countBadge}>
           <Text style={styles.countText}>{players.length} Players</Text>
         </View>
+      </View>
+
+      {/* 3D Pitch Viewer */}
+      <View style={styles.pitchContainer}>
+        <Pitch3D players={pitchPlayers} />
       </View>
 
       {/* Player Detail Modal */}
@@ -304,6 +339,15 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xs,
     color: Colors.textSecondary,
     fontWeight: '600',
+  },
+  pitchContainer: {
+    height: 300,
+    marginHorizontal: Spacing.xl,
+    marginBottom: Spacing.xl,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.surfaceBorder,
+    overflow: 'hidden',
   },
   list: {
     padding: Spacing.xl,

@@ -3,10 +3,9 @@
 // Creates randomized players for new clubs
 // ============================================================
 
-import { Position, Morale, type PlayerStats } from '@footlaw/shared';
-import { PLAYER, GAME } from '@footlaw/shared';
+import { Position, Morale, type PlayerStats, PLAYER, GAME } from '@footlaw/shared';
 import { calculateStarRating } from '@footlaw/shared';
-import { Player } from '../models';
+import { Player, Tactic } from '../models';
 import mongoose from 'mongoose';
 
 // ---- Name pools ----
@@ -111,6 +110,36 @@ export async function generateStarterSquad(
     });
   }
 
-  await Player.insertMany(players);
-  console.log(`⚽ Generated ${players.length} players for club ${clubId}`);
+  const savedPlayers = await Player.insertMany(players);
+
+  // Group players by position bucket to pick a logical 4-4-2 starting eleven
+  const gks = savedPlayers.filter(p => p.position === Position.GK);
+  const defs = savedPlayers.filter(p => [Position.DL, Position.DC, Position.DR].includes(p.position as any));
+  const mids = savedPlayers.filter(p => [Position.ML, Position.MC, Position.MR].includes(p.position as any));
+  const atts = savedPlayers.filter(p => [Position.AML, Position.AMC, Position.AMR, Position.ST].includes(p.position as any));
+
+  const startingEleven = [
+    gks[0]._id,
+    defs[0]._id, defs[1]._id, defs[2]._id, defs[3]._id,
+    mids[0]._id, mids[1]._id, mids[2]._id, mids[3]._id,
+    atts[0]._id, atts[1]._id,
+  ];
+
+  const substitutes = [
+    gks[1]._id,
+    atts[2]._id,
+    atts[3]._id,
+    atts[4]._id,
+  ]; // Add a few subs from the remaining
+
+  await Tactic.create({
+    clubId,
+    formation: '4-4-2',
+    mentality: 'Normal',
+    passingStyle: 'Mixed',
+    startingEleven,
+    substitutes,
+  });
+
+  console.log(`⚽ Generated ${savedPlayers.length} players and default tactic for club ${clubId}`);
 }

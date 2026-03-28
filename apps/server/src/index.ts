@@ -10,6 +10,7 @@ import { setupSocketIO } from './sockets';
 import authRoutes from './routes/auth';
 import clubRoutes from './routes/clubs';
 import playerRoutes from './routes/players';
+import tacticRoutes from './routes/tactics';
 
 async function main() {
   // ---- Express setup ----
@@ -28,6 +29,7 @@ async function main() {
   app.use('/api/auth', authRoutes);
   app.use('/api/clubs', clubRoutes);
   app.use('/api/players', playerRoutes);
+  app.use('/api/tactics', tacticRoutes);
 
   // ---- Redis connection check ----
   const redis = new Redis(config.redisUrl);

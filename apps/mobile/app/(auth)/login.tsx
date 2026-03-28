@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/store';
 import { login, googleLogin } from '@/store/slices/authSlice';
 import { Colors, Spacing, BorderRadius, FontSize, Shadow } from '@/theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
+import { GOOGLE_CONFIG } from '@/constants/config';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -22,9 +23,9 @@ export default function LoginScreen() {
 
   // Google Login Hook
   const [request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId: 'YOUR_ANDROID_CLIENT_ID', // Replace in production
-    iosClientId: 'YOUR_IOS_CLIENT_ID',         // Replace in production
-    webClientId: 'YOUR_WEB_CLIENT_ID',         // Replace in production
+    androidClientId: GOOGLE_CONFIG.androidClientId,
+    iosClientId: GOOGLE_CONFIG.iosClientId,
+    webClientId: GOOGLE_CONFIG.webClientId,
   });
 
   React.useEffect(() => {

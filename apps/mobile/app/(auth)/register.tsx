@@ -1,11 +1,22 @@
-import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { 
+  StyleSheet, 
+  TextInput, 
+  TouchableOpacity, 
+  KeyboardAvoidingView, 
+  Platform, 
+  ScrollView, 
+  Modal, 
+  FlatList,
+  SafeAreaView
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { Text, View } from '@/components/Themed';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { register } from '@/store/slices/authSlice';
 import { Colors, Spacing, BorderRadius, FontSize, Shadow } from '@/theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
+import { COUNTRIES } from '@/constants/countries';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -20,6 +31,17 @@ export default function RegisterScreen() {
   const [nationality, setNationality] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  // ---- Country Picker State ----
+  const [isPickerVisible, setIsPickerVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredCountries = useMemo(() => {
+    if (!searchQuery) return COUNTRIES;
+    return COUNTRIES.filter(c => 
+      c.label.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
+
   const handleRegister = async () => {
     if (!email || !password || !firstName || !lastName || !nationality) {
       return;
@@ -32,6 +54,12 @@ export default function RegisterScreen() {
       lastName, 
       nationality 
     }));
+  };
+
+  const selectCountry = (label: string) => {
+    setNationality(label);
+    setIsPickerVisible(false);
+    setSearchQuery('');
   };
 
   return (
@@ -73,13 +101,15 @@ export default function RegisterScreen() {
           </View>
 
           <Text style={styles.label}>Nationality</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g. Portuguese"
-            placeholderTextColor={Colors.textMuted}
-            value={nationality}
-            onChangeText={setNationality}
-          />
+          <TouchableOpacity 
+            style={styles.countrySelector} 
+            onPress={() => setIsPickerVisible(true)}
+          >
+            <Text style={[styles.countryText, !nationality && { color: Colors.textMuted }]}>
+              {nationality || 'Select your country'}
+            </Text>
+            <Ionicons name="chevron-down" size={20} color={Colors.textSecondary} />
+          </TouchableOpacity>
 
           <Text style={styles.label}>Email Address</Text>
           <TextInput
@@ -95,7 +125,7 @@ export default function RegisterScreen() {
           <Text style={styles.label}>Password</Text>
           <View style={styles.passwordContainer}>
             <TextInput
-              style={[styles.input, { flex: 1, marginBottom: 0 }]}
+              style={[styles.input, { flex: 1, marginBottom: 0, borderWidth: 0 }]}
               placeholder="Minimum 6 characters"
               placeholderTextColor={Colors.textMuted}
               value={password}
@@ -134,6 +164,51 @@ export default function RegisterScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* ---- Country Picker Modal ---- */}
+      <Modal
+        visible={isPickerVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Select Nationality</Text>
+            <TouchableOpacity onPress={() => setIsPickerVisible(false)}>
+              <Text style={styles.closeText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.searchBarContainer}>
+            <Ionicons name="search" size={20} color={Colors.textMuted} />
+            <TextInput
+              style={styles.searchBar}
+              placeholder="Search country..."
+              placeholderTextColor={Colors.textMuted}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              autoFocus
+            />
+          </View>
+
+          <FlatList
+            data={filteredCountries}
+            keyExtractor={(item) => item.value}
+            renderItem={({ item }) => (
+              <TouchableOpacity 
+                style={styles.countryItem}
+                onPress={() => selectCountry(item.label)}
+              >
+                <Text style={styles.countryLabel}>{item.label}</Text>
+                {nationality === item.label && (
+                  <Ionicons name="checkmark" size={20} color={Colors.primary} />
+                )}
+              </TouchableOpacity>
+            )}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+          />
+        </SafeAreaView>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -189,6 +264,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.surfaceBorder,
   },
+  countrySelector: {
+    height: 50,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.surfaceBorder,
+  },
+  countryText: {
+    fontSize: FontSize.md,
+    color: Colors.textPrimary,
+  },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -237,5 +328,58 @@ const styles = StyleSheet.create({
   linkText: {
     color: Colors.primary,
     fontWeight: '600',
+  },
+  // ---- Modal Styles ----
+  modalContainer: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: Spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.surfaceBorder,
+  },
+  modalTitle: {
+    fontSize: FontSize.lg,
+    fontWeight: 'bold',
+    color: Colors.textPrimary,
+  },
+  closeText: {
+    color: Colors.primary,
+    fontWeight: '600',
+  },
+  searchBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    margin: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    height: 44,
+  },
+  searchBar: {
+    flex: 1,
+    marginLeft: Spacing.xs,
+    color: Colors.textPrimary,
+    fontSize: FontSize.md,
+  },
+  countryItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: Spacing.lg,
+    backgroundColor: 'transparent',
+  },
+  countryLabel: {
+    fontSize: FontSize.md,
+    color: Colors.textPrimary,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: Colors.surfaceBorder,
+    marginLeft: Spacing.lg,
   },
 });
