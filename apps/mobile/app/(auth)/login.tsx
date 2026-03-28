@@ -1,16 +1,31 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { 
+  StyleSheet, 
+  TextInput, 
+  TouchableOpacity, 
+  KeyboardAvoidingView, 
+  Platform, 
+  View,
+  ImageBackground,
+  Image
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
-import { Text, View } from '@/components/Themed';
+import { Text } from '@/components/Themed';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { login, googleLogin } from '@/store/slices/authSlice';
-import { Colors, Spacing, BorderRadius, FontSize, Shadow } from '@/theme/tokens';
+import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '@/theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
 import { GOOGLE_CONFIG } from '@/constants/config';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 
 WebBrowser.maybeCompleteAuthSession();
+
+// Hardcoded background from Stitch design
+const STADIUM_BG = "https://lh3.googleusercontent.com/aida-public/AB6AXuC5LSaMAZ9bBX-V5Hy-h2Zw15PzAn2GN1e7ubpG29R6BXvHGct7j0lRrn65ieX4O5bnfkvcxsYPPMkwwKxr2eE1OIPzohWv7HnTbiQ-vsL0S4ZB80GurDj9a2Q_WN8uiGxCLMGrqpanlNyrs1zuGICXK8expVgdFAhXViLkkwOfVXlUI7feZovJMrd9xZ32GRGwinLnu1dSTa5kdHdxcEUbhl5zNH_SomPbXwaIssgP6HTui4mGSEnfsapsjxt1ph21WG650qLAR2fS";
+const GOOGLE_ICON = "https://lh3.googleusercontent.com/aida-public/AB6AXuDecDQ78A3vXDLkPhT-30fWIzBl2A3aX7pphzdU1oUZ5z_4m1YbhC9mSNHdO7IxtWdb9RBLS0LEbudFgPEWNAB-g-ta4M52E6gdzB2rHTlFlcPTi_KLctSPQUDLFulQ18p1sNl5WSamQXwdz2t6KdUyxFCNp1SYeLQkaBSlpk_2WB6vRiD2oJ7PRDTFdLn_kM6RayFmxB33rB6X-HZlxWAAbROqrp0US4oAXt2rVxm2W5KQfRRe-n-8umfR2HclIqQWN3XUWoz7kF3C";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -30,226 +45,322 @@ export default function LoginScreen() {
 
   React.useEffect(() => {
     if (response?.type === 'success') {
-      const { id_token } = response.params;
-      if (id_token) {
-        dispatch(googleLogin(id_token));
+      const { authentication } = response;
+      if (authentication?.accessToken) {
+        dispatch(googleLogin(authentication.accessToken));
       }
     }
-  }, [response]);
+  }, [response, dispatch]);
 
   const handleLogin = async () => {
     if (!email || !password) return;
     await dispatch(login({ email, password }));
   };
 
-  const handleGoogleLogin = () => {
-    promptAsync();
-  };
-
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+    <ImageBackground 
+      source={{ uri: STADIUM_BG }} 
+      style={styles.backgroundImage}
+      imageStyle={{ opacity: 0.6 }}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Footlaw</Text>
-          <Text style={styles.subtitle}>The Law of the Pitch</Text>
-        </View>
+      <LinearGradient
+        colors={['rgba(15,19,31,0.8)', Colors.background]}
+        style={styles.overlayGradient}
+      />
+      
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+        <View style={styles.content}>
+          
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.logoText}>FOOTLAW</Text>
+            <View style={styles.separator} />
+            <Text style={styles.title}>Welcome, Manager</Text>
+            <Text style={styles.subtitle}>Your tactical journey begins here.</Text>
+          </View>
 
-        <View style={styles.form}>
-          <Text style={styles.label}>Email Address</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="name@example.com"
-            placeholderTextColor={Colors.textMuted}
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
+          {/* Glass Panel Form */}
+          <BlurView intensity={40} tint="dark" style={styles.glassPanel}>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>TACTICAL ID / EMAIL</Text>
+              <View style={styles.inputWrapper}>
+                <Ionicons name="person" size={20} color={Colors.onSurfaceVariant} style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="manager@footlaw.com"
+                  placeholderTextColor={Colors.outline}
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                />
+              </View>
+            </View>
 
-          <Text style={styles.label}>Password</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={[styles.input, { flex: 1, marginBottom: 0 }]}
-              placeholder="Your password"
-              placeholderTextColor={Colors.textMuted}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-            />
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>ENCRYPTION KEY</Text>
+              <View style={styles.inputWrapper}>
+                <Ionicons name="lock-closed" size={20} color={Colors.onSurfaceVariant} style={styles.inputIcon} />
+                <TextInput
+                  style={[styles.input, { paddingRight: 50 }]}
+                  placeholder="••••••••"
+                  placeholderTextColor={Colors.outline}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity 
+                  onPress={() => setShowPassword(!showPassword)}
+                  style={styles.eyeIcon}
+                >
+                  <Ionicons 
+                    name={showPassword ? 'eye-off' : 'eye'} 
+                    size={20} 
+                    color={Colors.onSurfaceVariant} 
+                  />
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity style={styles.forgotBtn}>
+                <Text style={styles.forgotText}>Forgot password?</Text>
+              </TouchableOpacity>
+            </View>
+
+            {error && <Text style={styles.errorText}>{error}</Text>}
+
             <TouchableOpacity 
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeIcon}
+              activeOpacity={0.8}
+              onPress={handleLogin}
+              disabled={isLoading}
+              style={{ marginTop: Spacing.md }}
             >
-              <Ionicons 
-                name={showPassword ? 'eye-off' : 'eye'} 
-                size={20} 
-                color={Colors.textSecondary} 
-              />
+              <LinearGradient
+                colors={['#2ae500', '#1ca600']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.loginButton}
+              >
+                <Text style={styles.loginButtonText}>
+                  {isLoading ? 'Decrypting...' : 'Sign In'}
+                </Text>
+                <Ionicons name="football" size={20} color={Colors.onPrimary} style={{ marginLeft: 8 }} />
+              </LinearGradient>
+            </TouchableOpacity>
+
+            {/* Divider */}
+            <View style={styles.dividerContainer}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>SECURE CONNECT</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            {/* Social Logins */}
+            <View style={styles.socialGrid}>
+              <TouchableOpacity 
+                style={styles.socialBtn}
+                onPress={() => promptAsync()}
+              >
+                <Image source={{ uri: GOOGLE_ICON }} style={styles.socialLogo} />
+                <Text style={styles.socialText}>GOOGLE</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.socialBtn}>
+                <Ionicons name="logo-apple" size={20} color={Colors.onSurfaceVariant} />
+                <Text style={styles.socialText}>APPLE</Text>
+              </TouchableOpacity>
+            </View>
+
+          </BlurView>
+
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>New to the dugout? </Text>
+            <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
+              <Text style={styles.linkText}>Establish your club</Text>
             </TouchableOpacity>
           </View>
-
-          {error && <Text style={styles.errorText}>{error}</Text>}
-
-          <TouchableOpacity 
-            style={[styles.loginButton, isLoading && styles.buttonDisabled]}
-            onPress={handleLogin}
-            disabled={isLoading}
-          >
-            <Text style={styles.loginButtonText}>
-              {isLoading ? 'Signing in...' : 'Sign In'}
-            </Text>
-          </TouchableOpacity>
-
-          <View style={styles.divider}>
-            <View style={styles.line} />
-            <Text style={styles.dividerText}>OR</Text>
-            <View style={styles.line} />
-          </View>
-
-          <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
-            <Ionicons name="logo-google" size={20} color={Colors.textPrimary} style={{ marginRight: 10 }} />
-            <Text style={styles.googleButtonText}>Continue with Google</Text>
-          </TouchableOpacity>
+          
         </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account?</Text>
-          <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-            <Text style={styles.linkText}>Create Account</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  backgroundImage: {
     flex: 1,
     backgroundColor: Colors.background,
   },
-  scrollContent: {
-    flexGrow: 1,
-    padding: Spacing.xl,
+  overlayGradient: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  container: {
+    flex: 1,
     justifyContent: 'center',
+    padding: Spacing['2xl'],
+  },
+  content: {
+    width: '100%',
+    alignItems: 'center',
   },
   header: {
     alignItems: 'center',
     marginBottom: Spacing['4xl'],
-    backgroundColor: 'transparent',
+  },
+  logoText: {
+    fontFamily: FontFamily.headingBlack,
+    fontSize: FontSize['5xl'],
+    color: Colors.white,
+    letterSpacing: -2,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
+  },
+  separator: {
+    height: 4,
+    width: 64,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.full,
+    marginBottom: Spacing.xl,
   },
   title: {
-    fontSize: FontSize['4xl'],
-    fontWeight: 'bold',
-    color: Colors.gold,
-    letterSpacing: 2,
+    fontFamily: FontFamily.headingBold,
+    fontSize: FontSize.xl,
+    color: Colors.textPrimary,
   },
   subtitle: {
-    fontSize: FontSize.md,
-    color: Colors.textSecondary,
-    marginTop: Spacing.xs,
+    fontFamily: FontFamily.regular,
+    fontSize: FontSize.sm,
+    color: Colors.onSurfaceVariant,
+    marginTop: 4,
   },
-  form: {
-    backgroundColor: 'transparent',
+  glassPanel: {
+    width: '100%',
+    borderRadius: 32,
+    padding: Spacing['3xl'],
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(121, 255, 91, 0.15)', // inner glow approximation
+  },
+  inputGroup: {
+    marginBottom: Spacing.xl,
   },
   label: {
-    fontSize: FontSize.sm,
-    color: Colors.textSecondary,
-    marginBottom: Spacing.xs,
+    fontFamily: FontFamily.headingBold,
+    fontSize: 10,
+    color: Colors.primary,
+    letterSpacing: 1.5,
+    marginBottom: Spacing.sm,
     marginLeft: 4,
   },
-  input: {
-    height: 50,
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.md,
-    color: Colors.textPrimary,
-    fontSize: FontSize.md,
-    marginBottom: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.surfaceBorder,
+  inputWrapper: {
+    position: 'relative',
+    justifyContent: 'center',
   },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    borderColor: Colors.surfaceBorder,
-    marginBottom: Spacing.lg,
+  inputIcon: {
+    position: 'absolute',
+    left: Spacing.xl,
+    zIndex: 1,
+  },
+  input: {
+    height: 56,
+    backgroundColor: Colors.surfaceContainerLow,
+    borderRadius: BorderRadius.xl,
+    paddingLeft: 48,
+    paddingRight: Spacing.xl,
+    color: Colors.textPrimary,
+    fontFamily: FontFamily.regular,
+    fontSize: FontSize.md,
   },
   eyeIcon: {
-    padding: Spacing.md,
+    position: 'absolute',
+    right: Spacing.lg,
+    padding: Spacing.sm,
   },
-  loginButton: {
-    height: 50,
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: Spacing.md,
-    ...Shadow.md,
+  forgotBtn: {
+    alignSelf: 'flex-end',
+    marginTop: Spacing.sm,
   },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  loginButtonText: {
-    color: Colors.white,
-    fontSize: FontSize.md,
-    fontWeight: '600',
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: Spacing.xl,
-    backgroundColor: 'transparent',
-  },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: Colors.surfaceBorder,
-  },
-  dividerText: {
-    marginHorizontal: Spacing.md,
-    color: Colors.textMuted,
+  forgotText: {
+    fontFamily: FontFamily.semibold,
     fontSize: FontSize.xs,
-  },
-  googleButton: {
-    height: 50,
-    flexDirection: 'row',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: Colors.surfaceBorder,
-  },
-  googleButtonText: {
-    color: Colors.textPrimary,
-    fontSize: FontSize.md,
-    fontWeight: '600',
+    color: Colors.secondary,
   },
   errorText: {
     color: Colors.danger,
     fontSize: FontSize.sm,
     marginBottom: Spacing.md,
     textAlign: 'center',
+    fontFamily: FontFamily.medium,
+  },
+  loginButton: {
+    height: 60,
+    borderRadius: BorderRadius.xl,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loginButtonText: {
+    fontFamily: FontFamily.headingBlack,
+    fontSize: FontSize.lg,
+    color: Colors.onPrimary,
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: Spacing['3xl'],
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  dividerText: {
+    fontFamily: FontFamily.bold,
+    fontSize: 10,
+    color: Colors.onSurfaceVariant,
+    letterSpacing: 2,
+    paddingHorizontal: Spacing.lg,
+  },
+  socialGrid: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+  },
+  socialBtn: {
+    flex: 1,
+    height: 50,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: BorderRadius.xl,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+  },
+  socialLogo: {
+    width: 20,
+    height: 20,
+    tintColor: Colors.onSurfaceVariant, // Starts grayed out to match the HTML design
+  },
+  socialText: {
+    fontFamily: FontFamily.bold,
+    fontSize: FontSize.xs,
+    color: Colors.onSurfaceVariant,
+    letterSpacing: 1,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: Spacing.xl,
-    backgroundColor: 'transparent',
+    marginTop: Spacing['3xl'],
   },
   footerText: {
-    color: Colors.textSecondary,
-    marginRight: 5,
+    fontFamily: FontFamily.regular,
+    fontSize: FontSize.sm,
+    color: Colors.onSurfaceVariant,
   },
   linkText: {
+    fontFamily: FontFamily.bold,
+    fontSize: FontSize.sm,
     color: Colors.primary,
-    fontWeight: '600',
   },
 });

@@ -8,22 +8,27 @@ import {
   ScrollView, 
   Modal, 
   FlatList,
-  SafeAreaView
+  SafeAreaView,
+  View,
+  ImageBackground
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Text, View } from '@/components/Themed';
+import { Text } from '@/components/Themed';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { register } from '@/store/slices/authSlice';
-import { Colors, Spacing, BorderRadius, FontSize, Shadow } from '@/theme/tokens';
+import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '@/theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
 import { COUNTRIES } from '@/constants/countries';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+
+const STADIUM_BG = "https://lh3.googleusercontent.com/aida-public/AB6AXuC5LSaMAZ9bBX-V5Hy-h2Zw15PzAn2GN1e7ubpG29R6BXvHGct7j0lRrn65ieX4O5bnfkvcxsYPPMkwwKxr2eE1OIPzohWv7HnTbiQ-vsL0S4ZB80GurDj9a2Q_WN8uiGxCLMGrqpanlNyrs1zuGICXK8expVgdFAhXViLkkwOfVXlUI7feZovJMrd9xZ32GRGwinLnu1dSTa5kdHdxcEUbhl5zNH_SomPbXwaIssgP6HTui4mGSEnfsapsjxt1ph21WG650qLAR2fS";
 
 export default function RegisterScreen() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { error, isLoading } = useAppSelector((state) => state.auth);
 
-  // ---- Form State ----
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -31,7 +36,6 @@ export default function RegisterScreen() {
   const [nationality, setNationality] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // ---- Country Picker State ----
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -43,17 +47,8 @@ export default function RegisterScreen() {
   }, [searchQuery]);
 
   const handleRegister = async () => {
-    if (!email || !password || !firstName || !lastName || !nationality) {
-      return;
-    }
-    
-    await dispatch(register({ 
-      email, 
-      password, 
-      firstName, 
-      lastName, 
-      nationality 
-    }));
+    if (!email || !password || !firstName || !lastName || !nationality) return;
+    await dispatch(register({ email, password, firstName, lastName, nationality }));
   };
 
   const selectCountry = (label: string) => {
@@ -63,114 +58,144 @@ export default function RegisterScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+    <ImageBackground 
+      source={{ uri: STADIUM_BG }} 
+      style={styles.backgroundImage}
+      imageStyle={{ opacity: 0.6 }}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
-          </TouchableOpacity>
-          <Text style={styles.title}>Join Footlaw</Text>
-          <Text style={styles.subtitle}>Begin your career as a manager</Text>
-        </View>
+      <LinearGradient
+        colors={['rgba(15,19,31,0.8)', Colors.background]}
+        style={styles.overlayGradient}
+      />
 
-        <View style={styles.form}>
-          <View style={styles.row}>
-            <View style={{ flex: 1, marginRight: Spacing.md }}>
-              <Text style={styles.label}>First Name</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Cristiano"
-                placeholderTextColor={Colors.textMuted}
-                value={firstName}
-                onChangeText={setFirstName}
-              />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.label}>Last Name</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Ronaldo"
-                placeholderTextColor={Colors.textMuted}
-                value={lastName}
-                onChangeText={setLastName}
-              />
-            </View>
-          </View>
-
-          <Text style={styles.label}>Nationality</Text>
-          <TouchableOpacity 
-            style={styles.countrySelector} 
-            onPress={() => setIsPickerVisible(true)}
-          >
-            <Text style={[styles.countryText, !nationality && { color: Colors.textMuted }]}>
-              {nationality || 'Select your country'}
-            </Text>
-            <Ionicons name="chevron-down" size={20} color={Colors.textSecondary} />
-          </TouchableOpacity>
-
-          <Text style={styles.label}>Email Address</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="name@example.com"
-            placeholderTextColor={Colors.textMuted}
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
-
-          <Text style={styles.label}>Password</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={[styles.input, { flex: 1, marginBottom: 0, borderWidth: 0 }]}
-              placeholder="Minimum 6 characters"
-              placeholderTextColor={Colors.textMuted}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-            />
-            <TouchableOpacity 
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeIcon}
-            >
-              <Ionicons 
-                name={showPassword ? 'eye-off' : 'eye'} 
-                size={20} 
-                color={Colors.textSecondary} 
-              />
-            </TouchableOpacity>
-          </View>
-
-          {error && <Text style={styles.errorText}>{error}</Text>}
-
-          <TouchableOpacity 
-            style={[styles.registerButton, isLoading && styles.buttonDisabled]}
-            onPress={handleRegister}
-            disabled={isLoading}
-          >
-            <Text style={styles.registerButtonText}>
-              {isLoading ? 'Creating Account...' : 'Create Account'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Already have an account?</Text>
-          <TouchableOpacity onPress={() => router.replace('/(auth)/login')}>
-            <Text style={styles.linkText}>Sign In</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-
-      {/* ---- Country Picker Modal ---- */}
-      <Modal
-        visible={isPickerVisible}
-        animationType="slide"
-        presentationStyle="pageSheet"
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
       >
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color={Colors.white} />
+            </TouchableOpacity>
+            <View style={{ flex: 1, alignItems: 'center', paddingRight: 24 }}>
+              <Text style={styles.title}>Establish Club</Text>
+              <Text style={styles.subtitle}>Enter your manager details</Text>
+            </View>
+          </View>
+
+          <BlurView intensity={40} tint="dark" style={styles.glassPanel}>
+            
+            <View style={styles.row}>
+              <View style={[styles.inputGroup, { flex: 1, marginRight: Spacing.md }]}>
+                <Text style={styles.label}>FIRST NAME</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Pep"
+                  placeholderTextColor={Colors.outline}
+                  value={firstName}
+                  onChangeText={setFirstName}
+                />
+              </View>
+              <View style={[styles.inputGroup, { flex: 1 }]}>
+                <Text style={styles.label}>LAST NAME</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Guardiola"
+                  placeholderTextColor={Colors.outline}
+                  value={lastName}
+                  onChangeText={setLastName}
+                />
+              </View>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>NATIONALITY</Text>
+              <TouchableOpacity 
+                style={styles.countrySelector} 
+                onPress={() => setIsPickerVisible(true)}
+              >
+                <Text style={[styles.countryText, !nationality && { color: Colors.outline }]}>
+                  {nationality || 'Select your country'}
+                </Text>
+                <Ionicons name="chevron-down" size={20} color={Colors.onSurfaceVariant} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>TACTICAL ID / EMAIL</Text>
+              <View style={styles.inputWrapper}>
+                <Ionicons name="mail" size={20} color={Colors.onSurfaceVariant} style={styles.inputIcon} />
+                <TextInput
+                  style={styles.inputWithIcon}
+                  placeholder="manager@footlaw.com"
+                  placeholderTextColor={Colors.outline}
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                />
+              </View>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>ENCRYPTION KEY / PASSWORD</Text>
+              <View style={styles.inputWrapper}>
+                <Ionicons name="lock-closed" size={20} color={Colors.onSurfaceVariant} style={styles.inputIcon} />
+                <TextInput
+                  style={[styles.inputWithIcon, { paddingRight: 50 }]}
+                  placeholder="Minimum 6 characters"
+                  placeholderTextColor={Colors.outline}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity 
+                  onPress={() => setShowPassword(!showPassword)}
+                  style={styles.eyeIcon}
+                >
+                  <Ionicons 
+                    name={showPassword ? 'eye-off' : 'eye'} 
+                    size={20} 
+                    color={Colors.onSurfaceVariant} 
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {error && <Text style={styles.errorText}>{error}</Text>}
+
+            <TouchableOpacity 
+              activeOpacity={0.8}
+              onPress={handleRegister}
+              disabled={isLoading}
+              style={{ marginTop: Spacing.xl }}
+            >
+              <LinearGradient
+                colors={['#2ae500', '#1ca600']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.registerButton}
+              >
+                <Text style={styles.registerButtonText}>
+                  {isLoading ? 'Processing...' : 'Create Account'}
+                </Text>
+                <Ionicons name="arrow-forward" size={20} color={Colors.onPrimary} style={{ marginLeft: 8 }} />
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Already have a club?</Text>
+              <TouchableOpacity onPress={() => router.replace('/(auth)/login')}>
+                <Text style={styles.linkText}>Sign In</Text>
+              </TouchableOpacity>
+            </View>
+
+          </BlurView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+
+      <Modal visible={isPickerVisible} animationType="slide" presentationStyle="pageSheet">
         <SafeAreaView style={styles.modalContainer}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Select Nationality</Text>
@@ -180,14 +205,13 @@ export default function RegisterScreen() {
           </View>
           
           <View style={styles.searchBarContainer}>
-            <Ionicons name="search" size={20} color={Colors.textMuted} />
+            <Ionicons name="search" size={20} color={Colors.outline} />
             <TextInput
               style={styles.searchBar}
               placeholder="Search country..."
-              placeholderTextColor={Colors.textMuted}
+              placeholderTextColor={Colors.outline}
               value={searchQuery}
               onChangeText={setSearchQuery}
-              autoFocus
             />
           </View>
 
@@ -195,191 +219,182 @@ export default function RegisterScreen() {
             data={filteredCountries}
             keyExtractor={(item) => item.value}
             renderItem={({ item }) => (
-              <TouchableOpacity 
-                style={styles.countryItem}
-                onPress={() => selectCountry(item.label)}
-              >
+              <TouchableOpacity style={styles.countryItem} onPress={() => selectCountry(item.label)}>
                 <Text style={styles.countryLabel}>{item.label}</Text>
-                {nationality === item.label && (
-                  <Ionicons name="checkmark" size={20} color={Colors.primary} />
-                )}
+                {nationality === item.label && <Ionicons name="checkmark" size={20} color={Colors.primary} />}
               </TouchableOpacity>
             )}
             ItemSeparatorComponent={() => <View style={styles.separator} />}
           />
         </SafeAreaView>
       </Modal>
-    </KeyboardAvoidingView>
+
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
+  backgroundImage: { flex: 1, backgroundColor: Colors.background },
+  overlayGradient: { ...StyleSheet.absoluteFillObject },
+  container: { flex: 1 },
   scrollContent: {
     flexGrow: 1,
-    padding: Spacing.xl,
-    paddingTop: 60,
+    padding: Spacing['xl'],
+    paddingTop: 80,
+    justifyContent: 'center',
   },
   header: {
-    marginBottom: Spacing.xl,
-    backgroundColor: 'transparent',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing['3xl'],
   },
   backButton: {
-    marginBottom: Spacing.lg,
+    padding: Spacing.sm,
   },
   title: {
-    fontSize: FontSize['3xl'],
-    fontWeight: 'bold',
-    color: Colors.textPrimary,
+    fontFamily: FontFamily.headingBold,
+    fontSize: FontSize['2xl'],
+    color: Colors.white,
+    letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: FontSize.md,
-    color: Colors.textSecondary,
-    marginTop: Spacing.xs,
+    fontFamily: FontFamily.regular,
+    fontSize: FontSize.sm,
+    color: Colors.onSurfaceVariant,
+    marginTop: 2,
   },
-  form: {
-    backgroundColor: 'transparent',
+  glassPanel: {
+    width: '100%',
+    borderRadius: 32,
+    padding: Spacing['2xl'],
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(121, 255, 91, 0.15)',
   },
   row: {
     flexDirection: 'row',
-    backgroundColor: 'transparent',
+  },
+  inputGroup: {
+    marginBottom: Spacing.xl,
   },
   label: {
-    fontSize: FontSize.sm,
-    color: Colors.textSecondary,
-    marginBottom: Spacing.xs,
+    fontFamily: FontFamily.headingBold,
+    fontSize: 10,
+    color: Colors.primary,
+    letterSpacing: 1.5,
+    marginBottom: Spacing.sm,
     marginLeft: 4,
   },
   input: {
-    height: 50,
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.md,
+    height: 56,
+    backgroundColor: Colors.surfaceContainerLow,
+    borderRadius: BorderRadius.xl,
+    paddingHorizontal: Spacing.xl,
     color: Colors.textPrimary,
+    fontFamily: FontFamily.regular,
     fontSize: FontSize.md,
-    marginBottom: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.surfaceBorder,
+  },
+  inputWrapper: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  inputIcon: {
+    position: 'absolute',
+    left: Spacing.lg,
+    zIndex: 1,
+  },
+  inputWithIcon: {
+    height: 56,
+    backgroundColor: Colors.surfaceContainerLow,
+    borderRadius: BorderRadius.xl,
+    paddingLeft: 46,
+    paddingRight: Spacing.xl,
+    color: Colors.textPrimary,
+    fontFamily: FontFamily.regular,
+    fontSize: FontSize.md,
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: Spacing.md,
+    padding: Spacing.md,
   },
   countrySelector: {
-    height: 50,
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
+    height: 56,
+    backgroundColor: Colors.surfaceContainerLow,
+    borderRadius: BorderRadius.xl,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: Spacing.md,
-    marginBottom: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.surfaceBorder,
+    paddingHorizontal: Spacing.xl,
   },
   countryText: {
+    fontFamily: FontFamily.regular,
     fontSize: FontSize.md,
     color: Colors.textPrimary,
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    borderColor: Colors.surfaceBorder,
-    marginBottom: Spacing.lg,
-  },
-  eyeIcon: {
-    padding: Spacing.md,
-  },
-  registerButton: {
-    height: 50,
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: Spacing.md,
-    ...Shadow.md,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  registerButtonText: {
-    color: Colors.white,
-    fontSize: FontSize.md,
-    fontWeight: '600',
   },
   errorText: {
     color: Colors.danger,
     fontSize: FontSize.sm,
     marginBottom: Spacing.md,
     textAlign: 'center',
+    fontFamily: FontFamily.medium,
+  },
+  registerButton: {
+    height: 60,
+    borderRadius: BorderRadius.xl,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  registerButtonText: {
+    fontFamily: FontFamily.headingBlack,
+    fontSize: FontSize.lg,
+    color: Colors.onPrimary,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: Spacing.xl,
-    backgroundColor: 'transparent',
+    marginTop: Spacing['2xl'],
+    gap: 6,
   },
   footerText: {
-    color: Colors.textSecondary,
-    marginRight: 5,
+    fontFamily: FontFamily.regular,
+    fontSize: FontSize.sm,
+    color: Colors.onSurfaceVariant,
   },
   linkText: {
+    fontFamily: FontFamily.bold,
+    fontSize: FontSize.sm,
     color: Colors.primary,
-    fontWeight: '600',
   },
-  // ---- Modal Styles ----
-  modalContainer: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
+  // Modal
+  modalContainer: { flex: 1, backgroundColor: Colors.background },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: Spacing.lg,
+    padding: Spacing.xl,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.surfaceBorder,
+    borderBottomColor: Colors.surfaceContainerHigh,
   },
-  modalTitle: {
-    fontSize: FontSize.lg,
-    fontWeight: 'bold',
-    color: Colors.textPrimary,
-  },
-  closeText: {
-    color: Colors.primary,
-    fontWeight: '600',
-  },
+  modalTitle: { fontFamily: FontFamily.headingBold, fontSize: FontSize.lg, color: Colors.white },
+  closeText: { fontFamily: FontFamily.bold, color: Colors.primary },
   searchBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.surfaceContainerLow,
     margin: Spacing.lg,
-    paddingHorizontal: Spacing.md,
-    borderRadius: BorderRadius.md,
-    height: 44,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: BorderRadius.xl,
+    height: 50,
   },
-  searchBar: {
-    flex: 1,
-    marginLeft: Spacing.xs,
-    color: Colors.textPrimary,
-    fontSize: FontSize.md,
-  },
+  searchBar: { flex: 1, marginLeft: Spacing.sm, color: Colors.textPrimary, fontFamily: FontFamily.regular },
   countryItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: Spacing.lg,
-    backgroundColor: 'transparent',
+    padding: Spacing.xl,
   },
-  countryLabel: {
-    fontSize: FontSize.md,
-    color: Colors.textPrimary,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: Colors.surfaceBorder,
-    marginLeft: Spacing.lg,
-  },
+  countryLabel: { fontFamily: FontFamily.medium, fontSize: FontSize.md, color: Colors.textPrimary },
+  separator: { height: 1, backgroundColor: Colors.surfaceContainerHigh, marginLeft: Spacing.xl },
 });

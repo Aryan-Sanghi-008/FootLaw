@@ -5,23 +5,50 @@
 
 export const Colors = {
   // ---- Base ----
-  background: '#0a0e1a',
-  surface: '#111827',
-  surfaceLight: '#1f2937',
-  surfaceBorder: '#374151',
+  background: '#0f131f',
+  surface: '#0f131f',
+  surfaceVariant: '#313442',
+  surfaceContainerLow: '#171b28',
+  surfaceContainer: '#1b1f2c',
+  surfaceContainerHigh: '#262a37',
+  surfaceContainerHighest: '#313442',
+  surfaceContainerLowest: '#0a0e1a',
+  surfaceLight: '#353946',
+  surfaceBorder: '#444650',
+  outline: '#8e909c',
+  outlineVariant: '#444650',
 
-  // ---- Brand ----
-  primary: '#3b82f6',        // Electric blue
-  primaryDark: '#2563eb',
-  primaryLight: '#60a5fa',
+  // ---- Brand (Top Eleven Green) ----
+  primary: '#2ae500', 
+  onPrimary: '#053900',
+  primaryContainer: '#033000',
+  onPrimaryContainer: '#1ca600',
+  primaryDark: '#106e00',
+  primaryLight: '#79ff5b',
+  
+  // ---- Secondary (Cyan/Blue) ----
+  secondary: '#bdf4ff',
+  onSecondary: '#00363d',
+  secondaryContainer: '#00e3fd',
+  onSecondaryContainer: '#00616d',
+
+  // ---- Tertiary (Purple/Indigo) ----
+  tertiary: '#bdc2ff',
+  onTertiary: '#1b247f',
+  tertiaryContainer: '#111a77',
+  onTertiaryContainer: '#7f88e5',
 
   // ---- Semantic ----
-  success: '#10b981',        // Emerald
-  successDark: '#059669',
-  warning: '#f59e0b',        // Gold
+  success: '#2ae500',
+  successDark: '#106e00',
+  warning: '#f59e0b',
   warningDark: '#d97706',
-  danger: '#ef4444',         // Crimson
-  dangerDark: '#dc2626',
+  error: '#ffb4ab',
+  onError: '#690005',
+  errorContainer: '#93000a',
+  onErrorContainer: '#ffdad6',
+  danger: '#ffb4ab',
+  dangerDark: '#93000a',
 
   // ---- Premium ----
   gold: '#f59e0b',
@@ -29,36 +56,38 @@ export const Colors = {
   goldGlow: 'rgba(245, 158, 11, 0.3)',
 
   // ---- Text ----
-  textPrimary: '#f9fafb',
-  textSecondary: '#9ca3af',
-  textMuted: '#6b7280',
-  textInverse: '#111827',
+  textPrimary: '#dfe2f3',
+  onSurface: '#dfe2f3',
+  textSecondary: '#c5c6d2',
+  onSurfaceVariant: '#c5c6d2',
+  textMuted: '#8e909c',
+  textInverse: '#0f131f',
 
   // ---- Pitch ----
-  pitchGreen: '#1a472a',
+  pitchGreen: '#0f131f', // Using background for pitch now based on gradient
   pitchLine: '#ffffff',
-  pitchDark: '#0f2d1a',
+  pitchDark: '#0a0e1a',
 
   // ---- Morale Colors ----
   morale: {
-    Terrible: '#ef4444',
+    Terrible: '#ffb4ab',
     Poor: '#f97316',
     Fair: '#eab308',
-    Good: '#22c55e',
-    Superb: '#3b82f6',
+    Good: '#2ae500',
+    Superb: '#00e3fd',
   },
 
   // ---- Position Colors ----
   position: {
     GK: '#f59e0b',
-    DL: '#22c55e', DC: '#22c55e', DR: '#22c55e',
-    ML: '#3b82f6', MC: '#3b82f6', MR: '#3b82f6',
+    DL: '#2ae500', DC: '#2ae500', DR: '#2ae500',
+    ML: '#00e3fd', MC: '#00e3fd', MR: '#00e3fd',
     AML: '#a855f7', AMC: '#a855f7', AMR: '#a855f7',
-    ST: '#ef4444',
+    ST: '#ffb4ab',
   },
 
   // ---- Misc ----
-  overlay: 'rgba(0, 0, 0, 0.6)',
+  overlay: 'rgba(15, 19, 31, 0.8)', // Matches stadium-bg linear gradient
   shimmer: 'rgba(255, 255, 255, 0.05)',
   white: '#ffffff',
   black: '#000000',
@@ -104,8 +133,9 @@ export const FontFamily = {
   medium: 'Inter_500Medium',
   semibold: 'Inter_600SemiBold',
   bold: 'Inter_700Bold',
-  heading: 'Outfit_600SemiBold',
-  headingBold: 'Outfit_700Bold',
+  heading: 'PlusJakartaSans_600SemiBold',
+  headingBold: 'PlusJakartaSans_700Bold',
+  headingBlack: 'PlusJakartaSans_800ExtraBold',
 } as const;
 
 export const Shadow = {
