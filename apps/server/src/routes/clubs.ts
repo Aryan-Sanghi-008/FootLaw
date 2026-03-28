@@ -120,4 +120,64 @@ router.get('/mine', authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// ---- POST /api/clubs/facilities/upgrade ----
+// Upgrades a specific facility (stadium, medicalCenter, trainingGround, etc.)
+
+router.post('/facilities/upgrade', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.userId!;
+    const { facility } = req.body; // e.g., 'stadium', 'medicalCenter'
+
+    if (!facility) {
+      res.status(400).json({ success: false, error: 'Facility type is required' });
+      return;
+    }
+
+    const profile = await Profile.findOne({ userId });
+    const club = await Club.findOne({ profileId: profile?._id });
+
+    if (!club) {
+      res.status(404).json({ success: false, error: 'Club not found' });
+      return;
+    }
+
+    const facilities = club.facilities as any;
+    if (!facilities[facility]) {
+      res.status(400).json({ success: false, error: 'Invalid facility type' });
+      return;
+    }
+
+    const currentLevel = facilities[facility].level;
+    const upgradeCost = currentLevel * 1000000; // Example: $1M per level
+
+    if (club.cash < upgradeCost) {
+      res.status(400).json({ success: false, error: 'Insufficient cash' });
+      return;
+    }
+
+    // Perform upgrade
+    club.cash -= upgradeCost;
+    facilities[facility].level += 1;
+    
+    // Special case for stadium capacity
+    if (facility === 'stadium') {
+      facilities.stadium.capacity += 1000;
+    }
+
+    club.markModified('facilities');
+    await club.save();
+
+    res.json({
+      success: true,
+      data: {
+        cash: club.cash,
+        facilities: club.facilities,
+      },
+    });
+  } catch (error) {
+    console.error('Upgrade facility error:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
 export default router;

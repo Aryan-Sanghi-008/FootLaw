@@ -51,8 +51,13 @@ export const register = createAsyncThunk(
       }
       return rejectWithValue(data.error);
     } catch (error: any) {
-      console.error('Registration error:', error?.message || error);
-      return rejectWithValue(error.response?.data?.error || 'Registration failed');
+      console.error('Registration error:', error?.response?.data || error.message);
+      return rejectWithValue(
+        error.response?.data?.error || 
+        error.response?.data?.message || 
+        error.message || 
+        'Registration failed'
+      );
     }
   }
 );
@@ -87,8 +92,12 @@ export const googleLogin = createAsyncThunk(
       }
       return rejectWithValue(data.error);
     } catch (error: any) {
-      console.error('Google login error:', error?.message || error);
-      return rejectWithValue(error.response?.data?.error || 'Google login failed');
+      console.error('Google login error:', error?.response?.data || error.message);
+      return rejectWithValue(
+        error.response?.data?.error || 
+        error.message || 
+        'Google login failed'
+      );
     }
   }
 );

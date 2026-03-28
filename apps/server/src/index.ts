@@ -11,6 +11,8 @@ import authRoutes from './routes/auth';
 import clubRoutes from './routes/clubs';
 import playerRoutes from './routes/players';
 import tacticRoutes from './routes/tactics';
+import marketRoutes from './routes/market';
+import matchRoutes from './routes/matches';
 
 async function main() {
   // ---- Express setup ----
@@ -30,6 +32,8 @@ async function main() {
   app.use('/api/clubs', clubRoutes);
   app.use('/api/players', playerRoutes);
   app.use('/api/tactics', tacticRoutes);
+  app.use('/api/market', marketRoutes);
+  app.use('/api/matches', matchRoutes);
 
   // ---- Redis connection check ----
   const redis = new Redis(config.redisUrl);

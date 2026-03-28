@@ -8,7 +8,9 @@ import {
   Text as RNText,
   Platform
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useAppSelector, useAppDispatch } from '@/store';
+import { simulateMatch, clearSimulation } from '@/store/slices/matchSlice';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Colors, Spacing, BorderRadius, FontSize, FontFamily } from '@/theme/tokens';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -21,15 +23,64 @@ const Text = ({ style, ...props }: any) => <RNText style={[styles.defaultText, s
 
 export default function LiveMatchSimulationScreen() {
   const router = useRouter();
-  const [minute, setMinute] = useState(64);
+  const dispatch = useAppDispatch();
+  const params = useLocalSearchParams();
+  const { matchId } = params;
 
-  // Fake match ticker
+  const { activeSimulation, isSimulating } = useAppSelector((state) => state.match);
+  const { currentClub } = useAppSelector((state) => state.club);
+
+  const [currentMinute, setCurrentMinute] = useState(0);
+  const [displayedEvents, setDisplayedEvents] = useState<any[]>([]);
+
+  // Start simulation on mount
   useEffect(() => {
-    const timer = setInterval(() => {
-      setMinute((m) => (m >= 90 ? 90 : m + 1));
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
+    if (matchId) {
+      dispatch(simulateMatch(matchId as string));
+    }
+    return () => {
+      dispatch(clearSimulation());
+    };
+  }, [matchId]);
+
+  // Ticker Logic to playback events
+  useEffect(() => {
+    if (!activeSimulation || isSimulating) return;
+
+    const interval = setInterval(() => {
+      setCurrentMinute((prev) => {
+        if (prev >= 90) {
+          clearInterval(interval);
+          return 90;
+        }
+        
+        const nextMin = prev + 1;
+        // Check for events in this minute
+        const newEvents = activeSimulation.events.filter(e => e.minute === nextMin);
+        if (newEvents.length > 0) {
+          setDisplayedEvents(prevEvents => [...newEvents, ...prevEvents].slice(0, 5));
+        }
+        
+        return nextMin;
+      });
+    }, 1000); // Speed up playback: 1s = 1 minute
+
+    return () => clearInterval(interval);
+  }, [activeSimulation, isSimulating]);
+
+  const homeTeamName = activeSimulation?.homeClubId === currentClub?.id ? currentClub?.name : 'Opponent';
+  const awayTeamName = activeSimulation?.awayClubId === currentClub?.id ? currentClub?.name : 'Opponent';
+  
+  // Scoring logic during playback
+  const homeScore = activeSimulation?.events
+    .filter(e => e.minute <= currentMinute && e.type === 'goal' && e.clubId === activeSimulation.homeClubId)
+    .length || 0;
+  
+  const awayScore = activeSimulation?.events
+    .filter(e => e.minute <= currentMinute && e.type === 'goal' && e.clubId === activeSimulation.awayClubId)
+    .length || 0;
+
+  const latestEvent = displayedEvents[0];
 
   return (
     <View style={styles.container}>
@@ -61,18 +112,18 @@ export default function LiveMatchSimulationScreen() {
           {/* Center Scoreboard */}
           <View style={styles.scoreboardCenter}>
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={styles.teamName}>London FC</Text>
-              <Text style={styles.teamScore}>2</Text>
+              <Text style={styles.teamName}>{homeTeamName}</Text>
+              <Text style={styles.teamScore}>{homeScore}</Text>
             </View>
             
             <View style={styles.timeBox}>
-              <Text style={styles.timeMinute}>{minute}'</Text>
-              <Text style={styles.timeLabel}>LIVE MATCH</Text>
+              <Text style={styles.timeMinute}>{currentMinute}'</Text>
+              <Text style={styles.timeLabel}>{currentMinute === 90 ? 'FULL TIME' : 'LIVE MATCH'}</Text>
             </View>
-
+ 
             <View style={{ alignItems: 'flex-start' }}>
-              <Text style={styles.teamName}>Madrid Utd</Text>
-              <Text style={styles.teamScore}>1</Text>
+              <Text style={styles.teamName}>{awayTeamName}</Text>
+              <Text style={styles.teamScore}>{awayScore}</Text>
             </View>
           </View>
 
@@ -142,16 +193,24 @@ export default function LiveMatchSimulationScreen() {
                 <Text style={styles.liveText}>LIVE FEED</Text>
              </View>
              
-             <View style={styles.commentRow}>
-                <Text style={styles.commentTime}>62'</Text>
-                <View style={styles.commentBody}>
-                   <Text style={styles.commentMain}>
-                      <Text style={{ color: Colors.primary }}>GOAL! </Text> 
-                      London FC - Julian Alvarez with a clinical finish after a defensive error. Stadium is erupting!
-                   </Text>
-                   <Text style={styles.commentSub}>Madrid Utd defenders look shell-shocked.</Text>
-                </View>
-             </View>
+             {latestEvent ? (
+               <View style={styles.commentRow}>
+                  <Text style={styles.commentTime}>{latestEvent.minute}'</Text>
+                  <View style={styles.commentBody}>
+                     <Text style={styles.commentMain}>
+                        {latestEvent.type === 'goal' && <Text style={{ color: Colors.primary }}>GOAL! </Text>}
+                        {latestEvent.text}
+                     </Text>
+                  </View>
+               </View>
+             ) : (
+               <View style={styles.commentRow}>
+                  <Text style={styles.commentTime}>{currentMinute}'</Text>
+                  <View style={styles.commentBody}>
+                     <Text style={styles.commentMain}>Match is underway. Both teams looking for an opening.</Text>
+                  </View>
+               </View>
+             )}
           </BlurView>
 
           <View style={styles.actionButtonsRow}>

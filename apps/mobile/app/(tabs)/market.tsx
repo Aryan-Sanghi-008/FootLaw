@@ -14,8 +14,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAppSelector } from '@/store';
+import { useAppSelector, useAppDispatch } from '@/store';
 import { formatCurrency } from '@/app/(tabs)/squad';
+import { fetchLiveAuctions, placeBid, fetchEliteScouts } from '@/store/slices/marketSlice';
 
 const AVATAR = "https://lh3.googleusercontent.com/aida-public/AB6AXuCIp0ZZDCK0GVWy443tybeztyhlTerTSxR53NH5b7n1mGmfeninSfOmrNed7a9kZ-n14UprxLyqJ8ImY2vYw-l2EKzCDO9orz04eRZgfEokGNAi5OelZOI-MOvpg2NeYCk-4IZUxsqKZOLLS7bjm3VFbB5j84uHKMuBSMyEyY_P71PEVFZxy5XaeK6EzfYfxvqFRAVNQMkWFQUwHJBml4HE5kTtiuEHLsCk0W7dqErUMR_g2qsV9oMVFsmprhLPwhO61lMCnNT4PV0u";
 
@@ -99,21 +100,25 @@ const MOCK_AUCTIONS = [
   }
 ];
 
-function ScoutCard({ item }: { item: typeof MOCK_SCOUTS[0] }) {
+function ScoutCard({ item }: { item: any }) {
+  // Use a fallback image if none provided
+  const playerImg = item.img || "https://lh3.googleusercontent.com/aida-public/AB6AXuAcU1xnI9gFtbdg63oXtZ2Tg9cBoegM8mmSH7MFshYZjm6Na-88x5rBVDI-mj_qSU9VI81K6Us78tolXy_8tw3rsAARNXppP_hrX46tZ-mdFnRJpIxDiDOsb2ljJrScegEepxjpmZF_gxgHYaR9Fi0Ep-d_tt3Eef0UcLexi1oSvUergVATBi5M-5xV-2G_90iwuuslyZ285NU2yadTbaTkrOcfxB6j2thWUOJgwcy429mUb9NlBwES59iuYFUedDRblxkUzbA24yVP";
+  const stars = item.starRating / 2; // Assuming 1-10 rating to 1-5 stars
+
   return (
     <View style={styles.scoutCard}>
       <View style={styles.scoutCardStars}>
         {Array.from({ length: 5 }).map((_, i) => (
           <Ionicons 
             key={i} 
-            name={i < Math.floor(item.stars) ? "star" : i < item.stars ? "star-half" : "star-outline"} 
+            name={i < Math.floor(stars) ? "star" : i < stars ? "star-half" : "star-outline"} 
             size={12} 
             color={Colors.primary} 
           />
         ))}
       </View>
       <View style={styles.scoutImgWrapper}>
-        <Image source={{ uri: item.img }} style={styles.scoutImg} />
+        <Image source={{ uri: playerImg }} style={styles.scoutImg} />
         <LinearGradient
           colors={['transparent', Colors.surface]}
           style={StyleSheet.absoluteFillObject}
@@ -123,21 +128,21 @@ function ScoutCard({ item }: { item: typeof MOCK_SCOUTS[0] }) {
       </View>
       <View style={styles.scoutDetails}>
         <View style={styles.scoutHeader}>
-          <Text style={styles.scoutName}>{item.name}</Text>
+          <Text style={styles.scoutName}>{item.firstName} {item.lastName}</Text>
           <View style={styles.scoutPosBadge}>
             <Text style={styles.scoutPosText}>{item.position}</Text>
           </View>
         </View>
-        <Text style={styles.scoutSubText}>Age: {item.age} • Potential: {item.potential}%</Text>
+        <Text style={styles.scoutSubText}>Age: {item.age} • Condition: {item.condition}%</Text>
         
         <View style={styles.scoutMetaRow}>
           <View>
-             <Text style={styles.scoutMetaLabel}>VALUE</Text>
-             <Text style={styles.scoutValue}>{formatCurrency(item.value)}</Text>
+             <Text style={styles.scoutMetaLabel}>EST. VALUE</Text>
+             <Text style={styles.scoutValue}>{formatCurrency(item.starRating * 1000000)}</Text>
           </View>
           <View style={{ alignItems: 'flex-end' }}>
              <Text style={styles.scoutMetaLabel}>RATING</Text>
-             <Text style={styles.scoutRating}>{item.rating}</Text>
+             <Text style={styles.scoutRating}>{item.starRating}</Text>
           </View>
         </View>
 
@@ -156,8 +161,28 @@ function ScoutCard({ item }: { item: typeof MOCK_SCOUTS[0] }) {
   );
 }
 
-function AuctionRow({ item }: { item: typeof MOCK_AUCTIONS[0] }) {
-  const isHot = item.state === 'hot_outbid';
+function AuctionRow({ item, currentClubId }: { item: any; currentClubId?: string }) {
+  const dispatch = useAppDispatch();
+  const isHighestBidder = currentClubId === item.highestBidderId;
+  const isHot = !isHighestBidder && item.bids.length > 5;
+
+  const getTimeLeft = (endTime: string) => {
+    const end = new Date(endTime).getTime();
+    const now = new Date().getTime();
+    const diff = end - now;
+    if (diff <= 0) return 'ENDED';
+    const minutes = Math.floor(diff / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+
+  const handleBid = () => {
+    const nextBid = Math.floor(item.currentBid * 1.1); // 10% increase
+    dispatch(placeBid({ auctionId: item._id, amount: nextBid }));
+  };
+
+  const player = item.playerId;
+
   return (
     <View style={[styles.auctionRow, isHot && styles.auctionRowHot]}>
       {isHot && (
@@ -167,29 +192,32 @@ function AuctionRow({ item }: { item: typeof MOCK_AUCTIONS[0] }) {
       )}
       
       <View style={styles.auctionPlayerInfo}>
-        <Image source={{ uri: item.img }} style={[styles.auctionImg, isHot && { borderColor: Colors.primary, borderWidth: 1 }]} />
+        <Image 
+          source={{ uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuDqFlvB_JdOWyT88HBFEYDRUXsCBvda1Pots2xXzJozKnDq9MWAYQwVJ6ls1oXJiZowGKUHivnUJQjuuw_pxXNACFzTbFDKpLWMhGOkMq_-BpdlPxSp6wFL9fH82u0tuhjcQ5slngxqekxC2eEnJaL9cJpvQ5bbwpNzSyFrzjjaCPV00X8YZqUyv7r6eQZFVH_BKFcYfkiH5-CjW73dRif_g8weEWlzFFHz_kTU-5mBuThNJ-9cNnIEHpsR5RGNlnlDv2nXuVTbLBQJ" }} 
+          style={[styles.auctionImg, isHot && { borderColor: Colors.primary, borderWidth: 1 }]} 
+        />
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Text style={styles.auctionName} numberOfLines={1}>{item.name}</Text>
+            <Text style={styles.auctionName} numberOfLines={1}>{player?.firstName} {player?.lastName}</Text>
             <View style={[styles.auctionPosBadge, isHot && { backgroundColor: Colors.primaryContainer }]}>
-               <Text style={[styles.auctionPosText, isHot && { color: Colors.primary }]}>{item.position}</Text>
+               <Text style={[styles.auctionPosText, isHot && { color: Colors.primary }]}>{player?.position}</Text>
             </View>
             {isHot && <Text style={styles.hotTextFlash}>HOT BID!</Text>}
           </View>
-          <Text style={styles.auctionSubText}>Age: {item.age} • Quality: {item.quality}% • Nat: {item.nat}</Text>
+          <Text style={styles.auctionSubText}>Age: {player?.age} • Quality: {player?.starRating * 10}%</Text>
         </View>
       </View>
 
       <View style={styles.auctionRowRight}>
         <View style={styles.auctionTimerCol}>
           <Text style={styles.auctionMetaLabel}>ENDS IN</Text>
-          <Text style={[styles.auctionTime, isHot && { color: Colors.error }]}>{item.timeLeft}</Text>
+          <Text style={[styles.auctionTime, isHot && { color: Colors.error }]}>{getTimeLeft(item.endTime)}</Text>
         </View>
         <View style={styles.auctionBidCol}>
           <Text style={styles.auctionMetaLabel}>CURRENT BID</Text>
           <Text style={styles.auctionBidVal}>{formatCurrency(item.currentBid)}</Text>
-          <Text style={[styles.auctionBidCount, isHot && { color: Colors.primary, fontWeight: '800' }]}>
-            {isHot ? 'YOUR BID TOPPED' : `${item.bidsCount} Bids Placed`}
+          <Text style={[styles.auctionBidCount, isHighestBidder && { color: Colors.primary, fontWeight: '800' }]}>
+            {isHighestBidder ? 'YOUR BID TOP' : `${item.bids.length} Bids Placed`}
           </Text>
         </View>
       </View>
@@ -198,14 +226,18 @@ function AuctionRow({ item }: { item: typeof MOCK_AUCTIONS[0] }) {
          <TouchableOpacity style={styles.auctionViewBtn}>
             <Text style={styles.auctionViewText}>VIEW</Text>
          </TouchableOpacity>
-         <TouchableOpacity activeOpacity={0.8} style={{ flex: 1 }}>
+         <TouchableOpacity 
+            activeOpacity={0.8} 
+            style={{ flex: 1 }}
+            onPress={handleBid}
+          >
            <LinearGradient
               colors={[Colors.primary, Colors.onPrimaryContainer]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.auctionBidBtn}
            >
-              <Text style={styles.auctionBidBtnText}>{isHot ? 'RE-BID' : 'BID NOW'}</Text>
+              <Text style={styles.auctionBidBtnText}>{isHighestBidder ? 'BID (TOP)' : 'BID NOW'}</Text>
            </LinearGradient>
          </TouchableOpacity>
       </View>
@@ -214,10 +246,17 @@ function AuctionRow({ item }: { item: typeof MOCK_AUCTIONS[0] }) {
 }
 
 export default function TransferMarketScreen() {
+  const dispatch = useAppDispatch();
   const { currentClub } = useAppSelector((state) => state.club);
+  const { liveAuctions, eliteScouts } = useAppSelector((state) => state.market);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const balance = currentClub ? formatCurrency(currentClub.balance) : '$0';
+  React.useEffect(() => {
+    dispatch(fetchLiveAuctions());
+    dispatch(fetchEliteScouts());
+  }, []);
+
+  const balance = currentClub ? formatCurrency(currentClub.cash) : '$0';
   const tokens = currentClub?.tokens || 0;
 
   return (
@@ -277,7 +316,7 @@ export default function TransferMarketScreen() {
           </View>
           
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carouselContainer} snapToInterval={296} decelerationRate="fast">
-             {MOCK_SCOUTS.map(item => <ScoutCard key={item.id} item={item} />)}
+             {eliteScouts.map(item => <ScoutCard key={item._id} item={item} />)}
           </ScrollView>
 
           {/* Live Auctions Vertical List */}
@@ -287,12 +326,18 @@ export default function TransferMarketScreen() {
                 <Text style={styles.sectionTitle}>Live Auctions</Text>
              </View>
              <View style={styles.activeRoomsBadge}>
-                <Text style={styles.activeRoomsText}>14 Active Bidding Rooms</Text>
+                <Text style={styles.activeRoomsText}>{liveAuctions.length} Active Bidding Rooms</Text>
              </View>
           </View>
 
           <View style={styles.auctionsList}>
-             {MOCK_AUCTIONS.map(item => <AuctionRow key={item.id} item={item} />)}
+             {liveAuctions.map(item => (
+               <AuctionRow 
+                  key={item._id} 
+                  item={item} 
+                  currentClubId={currentClub?.id}
+               />
+             ))}
           </View>
           
           <View style={{ height: 120 }} />

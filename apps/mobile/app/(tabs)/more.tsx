@@ -13,8 +13,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAppSelector } from '@/store';
+import { useAppSelector, useAppDispatch } from '@/store';
 import { formatCurrency } from '@/app/(tabs)/squad';
+import { fetchMyClub, upgradeFacility } from '@/store/slices/clubSlice';
 
 const { width } = Dimensions.get('window');
 
@@ -70,41 +71,54 @@ const FACILITIES = [
   }
 ];
 
-function FacilityCard({ facility }: { facility: typeof FACILITIES[0] }) {
-  const isPrimary = facility.colorType === 'primary';
-  const colorHex = isPrimary 
-    ? Colors.primary 
-    : facility.colorType === 'secondary' 
-      ? Colors.secondaryContainer 
-      : facility.colorType === 'tertiary' 
-        ? Colors.tertiary
-        : Colors.error;
+function FacilityCard({ facility, type }: { facility: any; type: string }) {
+  const dispatch = useAppDispatch();
+  const isPrimary = type === 'stadium';
+
+  const colorMap: any = {
+    stadium: Colors.primary,
+    trainingGround: Colors.secondaryContainer,
+    youthAcademy: Colors.tertiary,
+    medicalCenter: Colors.error
+  };
+
+  const iconMap: any = {
+    stadium: 'football',
+    trainingGround: 'barbell',
+    youthAcademy: 'people',
+    medicalCenter: 'medkit'
+  };
+
+  const colorHex = colorMap[type] || Colors.primary;
+  const iconName = iconMap[type] || 'football';
+
+  const upgradeCost = facility.level * 1000000;
 
   return (
     <View style={styles.facilityCard}>
        <View style={styles.facilityHeader}>
          <View style={[styles.facilityIconBox, { backgroundColor: colorHex + '20', borderColor: colorHex + '40' }]}>
-            <Ionicons name={facility.icon as any} size={24} color={colorHex} />
+            <Ionicons name={iconName as any} size={24} color={colorHex} />
          </View>
          <View style={styles.levelBadge}>
             <Text style={styles.levelBadgeText}>LV. {facility.level}</Text>
          </View>
        </View>
 
-       <Text style={styles.facilityTitle}>{facility.title}</Text>
-       <Text style={styles.facilitySub}>{facility.subtitle}</Text>
-
+       <Text style={styles.facilityTitle}>{type.replace(/([A-Z])/g, ' $1').toUpperCase()}</Text>
+       
        <View style={styles.facilityBonusBox}>
           <View style={styles.facilityBonusRow}>
-             <Text style={styles.bonusLabelTop}>BONUS EFFECT</Text>
-             <Text style={[styles.bonusValueTop, { color: colorHex }]}>{facility.bonusLabel}</Text>
-          </View>
-          <View style={styles.progressBarWrap}>
-             <View style={[styles.progressBarFill, { width: `${facility.progress * 100}%`, backgroundColor: colorHex }]} />
+             <Text style={styles.bonusLabelTop}>UPGRADE COST</Text>
+             <Text style={[styles.bonusValueTop, { color: colorHex }]}>{formatCurrency(upgradeCost)}</Text>
           </View>
        </View>
 
-       <TouchableOpacity activeOpacity={0.8} style={{ marginTop: 'auto' }}>
+       <TouchableOpacity 
+          activeOpacity={0.8} 
+          style={{ marginTop: 'auto' }}
+          onPress={() => dispatch(upgradeFacility(type))}
+        >
          {isPrimary ? (
             <LinearGradient
                colors={[Colors.primary, Colors.onPrimaryContainer]}
@@ -112,11 +126,11 @@ function FacilityCard({ facility }: { facility: typeof FACILITIES[0] }) {
                end={{ x: 1, y: 0 }}
                style={styles.upgradeBtnPrimary}
             >
-               <Text style={styles.upgradeBtnPrimaryText}>UPGRADE ({formatCurrency(facility.cost)})</Text>
+               <Text style={styles.upgradeBtnPrimaryText}>UPGRADE</Text>
             </LinearGradient>
          ) : (
             <View style={[styles.upgradeBtnSecondary, { borderColor: colorHex + '40' }]}>
-               <Text style={styles.upgradeBtnSecondaryText}>UPGRADE ({formatCurrency(facility.cost)})</Text>
+               <Text style={styles.upgradeBtnSecondaryText}>UPGRADE</Text>
             </View>
          )}
        </TouchableOpacity>
@@ -125,10 +139,16 @@ function FacilityCard({ facility }: { facility: typeof FACILITIES[0] }) {
 }
 
 export default function MoreScreen() {
+  const dispatch = useAppDispatch();
   const { currentClub } = useAppSelector((state) => state.club);
 
-  const balance = currentClub ? formatCurrency(currentClub.balance) : '$0';
+  React.useEffect(() => {
+    dispatch(fetchMyClub());
+  }, []);
+
+  const balance = currentClub ? formatCurrency(currentClub.cash) : '$0';
   const tokens = currentClub?.tokens || 0;
+  const facilities = currentClub?.facilities || ({} as any);
 
   return (
     <View style={styles.container}>
@@ -201,7 +221,9 @@ export default function MoreScreen() {
 
           {/* Facility Bento Grid */}
           <View style={styles.gridContainer}>
-             {FACILITIES.map(fac => <FacilityCard key={fac.id} facility={fac} />)}
+             {Object.keys(facilities).map(key => (
+               <FacilityCard key={key} type={key} facility={facilities[key]} />
+             ))}
           </View>
 
           <View style={{ height: 120 }} />

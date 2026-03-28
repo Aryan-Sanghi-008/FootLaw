@@ -21,6 +21,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { COUNTRIES } from '@/constants/countries';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
+import { GOOGLE_CONFIG } from '@/constants/config';
+import { googleLogin } from '@/store/slices/authSlice';
+
+WebBrowser.maybeCompleteAuthSession();
 
 const STADIUM_BG = "https://lh3.googleusercontent.com/aida-public/AB6AXuC5LSaMAZ9bBX-V5Hy-h2Zw15PzAn2GN1e7ubpG29R6BXvHGct7j0lRrn65ieX4O5bnfkvcxsYPPMkwwKxr2eE1OIPzohWv7HnTbiQ-vsL0S4ZB80GurDj9a2Q_WN8uiGxCLMGrqpanlNyrs1zuGICXK8expVgdFAhXViLkkwOfVXlUI7feZovJMrd9xZ32GRGwinLnu1dSTa5kdHdxcEUbhl5zNH_SomPbXwaIssgP6HTui4mGSEnfsapsjxt1ph21WG650qLAR2fS";
 
@@ -38,6 +44,22 @@ export default function RegisterScreen() {
 
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Google Login Hook
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    androidClientId: GOOGLE_CONFIG.androidClientId,
+    iosClientId: GOOGLE_CONFIG.iosClientId,
+    webClientId: GOOGLE_CONFIG.webClientId,
+  });
+
+  React.useEffect(() => {
+    if (response?.type === 'success') {
+      const { authentication } = response;
+      if (authentication?.accessToken) {
+        dispatch(googleLogin(authentication.accessToken));
+      }
+    }
+  }, [response, dispatch]);
 
   const filteredCountries = useMemo(() => {
     if (!searchQuery) return COUNTRIES;
@@ -163,7 +185,12 @@ export default function RegisterScreen() {
               </View>
             </View>
 
-            {error && <Text style={styles.errorText}>{error}</Text>}
+            {error && (
+              <View style={styles.errorContainer}>
+                <Ionicons name="warning" size={16} color={Colors.error} />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            )}
 
             <TouchableOpacity 
               activeOpacity={0.8}
@@ -182,6 +209,21 @@ export default function RegisterScreen() {
                 </Text>
                 <Ionicons name="arrow-forward" size={20} color={Colors.onPrimary} style={{ marginLeft: 8 }} />
               </LinearGradient>
+            </TouchableOpacity>
+
+            <View style={styles.dividerContainer}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>OR SIGN UP WITH</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <TouchableOpacity 
+              style={styles.googleButton}
+              onPress={() => promptAsync()}
+              disabled={!request || isLoading}
+            >
+              <Ionicons name="logo-google" size={20} color={Colors.white} />
+              <Text style={styles.googleButtonText}>GOOGLE ACCOUNT</Text>
             </TouchableOpacity>
 
             <View style={styles.footer}>
@@ -332,12 +374,54 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     color: Colors.textPrimary,
   },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 68, 68, 0.1)',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    marginTop: Spacing.md,
+    gap: 8,
+  },
   errorText: {
-    color: Colors.danger,
-    fontSize: FontSize.sm,
-    marginBottom: Spacing.md,
-    textAlign: 'center',
+    color: Colors.error,
+    fontSize: FontSize.xs,
     fontFamily: FontFamily.medium,
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: Spacing.xl,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  dividerText: {
+    fontFamily: FontFamily.bold,
+    fontSize: 9,
+    color: Colors.outline,
+    paddingHorizontal: Spacing.md,
+    letterSpacing: 2,
+  },
+  googleButton: {
+    height: 56,
+    borderRadius: BorderRadius.xl,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  googleButtonText: {
+    fontFamily: FontFamily.headingBlack,
+    fontSize: FontSize.sm,
+    color: Colors.white,
+    letterSpacing: 1,
   },
   registerButton: {
     height: 60,

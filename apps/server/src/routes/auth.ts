@@ -54,7 +54,6 @@ router.post('/register', async (req: Request, res: Response) => {
       profileCompleted: true, // Mark as completed since we're collecting fields now
     });
 
-    // Create Profile
     const profile = await Profile.create({
       userId: user._id,
       firstName,
@@ -74,9 +73,13 @@ router.post('/register', async (req: Request, res: Response) => {
         ...tokens,
       },
     });
-  } catch (error) {
-    console.error('Register error:', error);
-    res.status(500).json({ success: false, error: 'Internal server error' });
+  } catch (error: any) {
+    console.error('Register detailed error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Internal server error',
+      details: error.errors // Validation errors if any
+    });
   }
 });
 
@@ -150,7 +153,15 @@ router.post('/google', async (req: Request, res: Response) => {
       user = await User.create({
         email,
         password: Math.random().toString(36).slice(-10), // Random placeholder
-        profileCompleted: false,
+        profileCompleted: true,
+      });
+
+      // Also create a basic profile for the new Google user
+      await Profile.create({
+        userId: user._id,
+        firstName: payload.given_name || 'Manager',
+        lastName: payload.family_name || 'Footlaw',
+        nationality: 'Global', // Default for Google SSO
       });
     }
 
@@ -165,9 +176,12 @@ router.post('/google', async (req: Request, res: Response) => {
         ...tokens,
       },
     });
-  } catch (error) {
-    console.error('Google auth error:', error);
-    res.status(401).json({ success: false, error: 'Google authentication failed' });
+  } catch (error: any) {
+    console.error('Google auth detailed error:', error);
+    res.status(401).json({ 
+      success: false, 
+      error: error.message || 'Google authentication failed' 
+    });
   }
 });
 

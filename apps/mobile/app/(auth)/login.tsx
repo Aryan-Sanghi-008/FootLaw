@@ -129,7 +129,12 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
 
-            {error && <Text style={styles.errorText}>{error}</Text>}
+            {error && (
+              <View style={styles.errorContainer}>
+                <Ionicons name="warning" size={16} color={Colors.error} />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            )}
 
             <TouchableOpacity 
               activeOpacity={0.8}
@@ -287,11 +292,19 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xs,
     color: Colors.secondary,
   },
-  errorText: {
-    color: Colors.danger,
-    fontSize: FontSize.sm,
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 68, 68, 0.1)',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
     marginBottom: Spacing.md,
-    textAlign: 'center',
+    gap: 8,
+  },
+  errorText: {
+    color: Colors.error,
+    fontSize: FontSize.xs,
     fontFamily: FontFamily.medium,
   },
   loginButton: {
